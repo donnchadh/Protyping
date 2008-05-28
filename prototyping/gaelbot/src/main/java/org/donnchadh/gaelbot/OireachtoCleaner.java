@@ -28,30 +28,39 @@ public class OireachtoCleaner extends AbstractCleaner {
         }
         return clean(parser);
     }
-    private String clean(Parser parser) {
+    public String clean(Parser parser) {
+        NodeList top;
         try {
-            NodeList nodes =  parser.extractAllNodesThatMatch(new NodeFilter(){
-                public boolean accept(Node node) {
-                    return node instanceof TextNode;
+            top = parser.parse(new NodeFilter(){
+                public boolean accept(Node arg0) {
+                    return true;
                 }});
-            StringBuilder builder = new StringBuilder();
-            boolean lastWasSpace = false;
-            for (SimpleNodeIterator i = nodes.elements(); i.hasMoreNodes();) {
-                Node n = i.nextNode();
-                if (!n.getText().trim().isEmpty()) {
-                    builder.append(n.getText());
-                    builder.append(" ");
-                    lastWasSpace = false;
-                } else {
-                    if (!lastWasSpace) {
-                        builder.append(n.getText());
-                        lastWasSpace = true;
-                    } 
-                }
-            }
-            return builder.toString();
         } catch (ParserException e) {
             throw new RuntimeException(e);
         }
+        return clean(top);
+    }
+
+    public String clean(NodeList top) {
+        NodeList nodes =  top.extractAllNodesThatMatch(new NodeFilter(){
+            public boolean accept(Node node) {
+                return node instanceof TextNode;
+            }});
+        StringBuilder builder = new StringBuilder();
+        boolean lastWasSpace = false;
+        for (SimpleNodeIterator i = nodes.elements(); i.hasMoreNodes();) {
+            Node n = i.nextNode();
+            if (!n.getText().trim().isEmpty()) {
+                builder.append(n.getText());
+                builder.append(" ");
+                lastWasSpace = false;
+            } else {
+                if (!lastWasSpace) {
+                    builder.append(n.getText());
+                    lastWasSpace = true;
+                } 
+            }
+        }
+        return builder.toString();
     }
 }

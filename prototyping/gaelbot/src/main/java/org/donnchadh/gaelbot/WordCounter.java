@@ -9,6 +9,10 @@ public class WordCounter {
     public Map<String, Integer> countWords(String input) {
         HashMap<String, Integer> result = new HashMap<String, Integer>();
 
+        return countWords(input, result);
+    }
+
+    public Map<String, Integer> countWords(String input, Map<String, Integer> result) {
         //print each word in order
         BreakIterator boundary = BreakIterator.getWordInstance(new Locale("GA", "IE"));
         boundary.setText(input);

@@ -85,7 +85,7 @@ public abstract class AbstractBot implements Runnable {
             }
         }
 
-    protected static final class LinkVisitorTask implements Runnable {
+    protected static class LinkVisitorTask implements Runnable {
             private final String newLink;
     
             private final Set<String> processed;
@@ -153,7 +153,11 @@ public abstract class AbstractBot implements Runnable {
                         }
                     };
                     if (connection.getResponseCode() == 200) {
-                        NodeList top = parser.parse(linkFilter);
+                        NodeList top = parser.parse(new NodeFilter(){
+                            public boolean accept(Node arg0) {
+                                return true;
+                            }});
+                        processDocument(top);
                         links = top.extractAllNodesThatMatch(linkFilter);
                         System.out.println(newLink);
                     } else {
@@ -169,6 +173,9 @@ public abstract class AbstractBot implements Runnable {
                 return links;
             }
     
+            protected void processDocument(NodeList top) {
+            }
+
         }
 
     protected static final String UTF_8 = "UTF-8";
