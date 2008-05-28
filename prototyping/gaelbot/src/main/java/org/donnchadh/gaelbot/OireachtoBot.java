@@ -60,11 +60,11 @@ public class OireachtoBot extends AbstractBot implements Runnable {
                     Thread.currentThread().interrupt();
                 }
             }
-            if (wordCounts.size() >= 16000) {
+            if (wordCounts.size() >= 18000) {
                 break;
             }
         }
-        printTopNWords(wordCounts, 50);
+        printTopNWords(wordCounts, 100);
         System.exit(0);
     }
 
@@ -96,20 +96,37 @@ public class OireachtoBot extends AbstractBot implements Runnable {
         i = 0;
         int j = 0;
         int k = 0;
+        int l = 0;
+        int m = 0;
         System.out.println("=============================");
         boolean printed = false;
         boolean printed2 = false;
+        boolean printed3 = false;
         for (Entry<Integer, List<String>> entry : wordsByCount.entrySet()) {
             j += entry.getValue().size();
             k += entry.getKey().intValue()*j;
+            if (entry.getValue().size() >= 3) {
+                l += entry.getValue().size();
+            }
+            if (entry.getValue().size() >= 7) {
+                m += entry.getValue().size();
+            }
             if (j >= 4000 && !printed) {
                 System.out.println("4000th entry:");
                 printEntry(i, entry);
+                System.out.println("Mid-range words: " + m);
                 printed = true;
+            }
+            if (m >= 5000 && !printed3) {
+                System.out.println("Xth entry:");
+                printEntry(i, entry);
+                System.out.println("Mid-range words: " + m);
+                printed3 = true;
             }
             if (j >= 8000 && !printed2) {
                 System.out.println("8000th entry:");
                 printEntry(i, entry);
+                System.out.println("Mid-range words: " + l);
                 printed2 = true;
             }
             i++;
