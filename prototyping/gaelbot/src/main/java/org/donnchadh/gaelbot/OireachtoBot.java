@@ -6,7 +6,6 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -20,7 +19,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.htmlparser.Node;
+import org.htmlparser.NodeFilter;
+import org.htmlparser.tags.MetaTag;
 import org.htmlparser.util.NodeList;
+import org.htmlparser.util.SimpleNodeIterator;
 
 public class OireachtoBot extends AbstractBot implements Runnable {
     /**
@@ -50,7 +53,31 @@ public class OireachtoBot extends AbstractBot implements Runnable {
             executor.execute(new LinkVisitorTask(newLink, processed, urlQueue, robotsChecker){
                 @Override
                 protected void processDocument(NodeList top) {
-                    new WordCounter().countWords(new OireachtoCleaner().clean(top), wordCounts);
+                    NodeList metaTags = top.extractAllNodesThatMatch(new NodeFilter(){
+
+                        public boolean accept(Node node) {
+                            return node instanceof MetaTag;
+                        }
+                        
+                    });
+                    String language = null;
+                    SimpleNodeIterator metaTagElements = metaTags.elements();
+                    while (metaTagElements.hasMoreNodes()) {
+                        MetaTag tag = (MetaTag) metaTagElements.nextNode();
+                        
+                        if (isDublinCoreMetaTag(tag)) {
+                            if (tag.getMetaTagName().equalsIgnoreCase("DC.Language")) {
+                                language = tag.getMetaContent();
+                            }
+                        }
+                    }
+                    if ("ga".equalsIgnoreCase(language)) {
+                        new WordCounter().countWords(new OireachtoCleaner().clean(top), wordCounts);
+                    }
+                }
+
+                private boolean isDublinCoreMetaTag(MetaTag tag) {
+                    return tag.getMetaTagName() != null &&  tag.getMetaTagName().startsWith("DC.");
                 }
             });
             while (urlQueue.isEmpty()) {
