@@ -1,5 +1,11 @@
 package org.donnchadh.gaelbot;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.SecureRandom;
@@ -21,11 +27,92 @@ import java.util.concurrent.Executors;
 
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
+import org.htmlparser.Parser;
 import org.htmlparser.tags.MetaTag;
 import org.htmlparser.util.NodeList;
+import org.htmlparser.util.ParserException;
 import org.htmlparser.util.SimpleNodeIterator;
 
 public class OireachtoBot extends AbstractBot implements Runnable {
+    private static final class DCLinkVisitorTask extends LinkVisitorTask {
+        private final Map<String, Integer> wordCounts;
+        private final String targetLanguage;
+
+        private DCLinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue,
+                RobotsChecker robotsChecker, Map<String, Integer> wordCounts, String targetLanguage) {
+            super(newLink, processed, urlQueue, robotsChecker);
+            this.wordCounts = wordCounts;
+            this.targetLanguage = targetLanguage;
+        }
+
+        @Override
+        protected void processDocument(NodeList top) {
+            NodeList metaTags = top.extractAllNodesThatMatch(new NodeFilter(){
+
+                public boolean accept(Node node) {
+                    return node instanceof MetaTag;
+                }
+                
+            });
+            String language = null;
+            SimpleNodeIterator metaTagElements = metaTags.elements();
+            while (metaTagElements.hasMoreNodes()) {
+                MetaTag tag = (MetaTag) metaTagElements.nextNode();
+                
+                if (isDublinCoreMetaTag(tag)) {
+                    if (tag.getMetaTagName().equalsIgnoreCase("DC.Language")) {
+                        language = tag.getMetaContent();
+                    }
+                }
+            }
+            if (targetLanguage.equalsIgnoreCase(language)) {
+                new WordCounter().countWords(new OireachtoCleaner().clean(top), wordCounts);
+            }
+        }
+
+        private boolean isDublinCoreMetaTag(MetaTag tag) {
+            return tag.getMetaTagName() != null &&  tag.getMetaTagName().startsWith("DC.");
+        }
+        
+        @Override
+        protected Parser buildParser(URL url) throws ParserException, IOException {
+            File file = new File(new File(new File(targetLanguage), url.getHost()), url.getPath());
+            if (!file.exists()) {
+                file.getParentFile().mkdirs();
+                file.createNewFile();
+                HttpURLConnection connection = openConnection(url);
+                InputStream s = connection.getInputStream();
+                byte[] b = new byte[16384];
+                int c = 0;
+                FileOutputStream o = new FileOutputStream(file);
+                try {
+                    do {
+                        o.write(b, 0, c);
+                        c = s.read(b);
+                    } while (c > 0);
+                    o.flush();
+                } finally {
+                    o.close();
+                }
+                s.close();
+            }
+            return super.buildParser(url);
+        }
+    }
+
+    private String targetLanguage = "ga";
+    private String rootUrl = "http://achtanna.oireachtas.ie/ga.toc.decade.html";
+    private int maxWords = 18000;
+
+    public OireachtoBot() {
+    }
+    
+    public OireachtoBot(String rootUrl, String targetLanguage, int maxWords) {
+        this.rootUrl = rootUrl;
+        this.targetLanguage = targetLanguage;
+        this.maxWords = maxWords;
+    }
+    
     /**
      * @param args
      */
@@ -42,7 +129,7 @@ public class OireachtoBot extends AbstractBot implements Runnable {
         final Map<String, Integer> wordCounts = new ConcurrentHashMap<String, Integer>();
         
         SecureRandom secureRandom = new SecureRandom(new SecureRandom(new byte[]{0,0,0,0}).generateSeed(32));
-        urlQueue.add("http://acts.oireachtas.ie/ga.toc.decade.html");
+        urlQueue.add(rootUrl);
         while (!urlQueue.isEmpty()) {
             final String newLink = urlQueue.remove();
             try {
@@ -50,36 +137,7 @@ public class OireachtoBot extends AbstractBot implements Runnable {
             } catch (MalformedURLException e1) {
                 e1.printStackTrace();
             }
-            executor.execute(new LinkVisitorTask(newLink, processed, urlQueue, robotsChecker){
-                @Override
-                protected void processDocument(NodeList top) {
-                    NodeList metaTags = top.extractAllNodesThatMatch(new NodeFilter(){
-
-                        public boolean accept(Node node) {
-                            return node instanceof MetaTag;
-                        }
-                        
-                    });
-                    String language = null;
-                    SimpleNodeIterator metaTagElements = metaTags.elements();
-                    while (metaTagElements.hasMoreNodes()) {
-                        MetaTag tag = (MetaTag) metaTagElements.nextNode();
-                        
-                        if (isDublinCoreMetaTag(tag)) {
-                            if (tag.getMetaTagName().equalsIgnoreCase("DC.Language")) {
-                                language = tag.getMetaContent();
-                            }
-                        }
-                    }
-                    if ("ga".equalsIgnoreCase(language)) {
-                        new WordCounter().countWords(new OireachtoCleaner().clean(top), wordCounts);
-                    }
-                }
-
-                private boolean isDublinCoreMetaTag(MetaTag tag) {
-                    return tag.getMetaTagName() != null &&  tag.getMetaTagName().startsWith("DC.");
-                }
-            });
+            executor.execute(new DCLinkVisitorTask(newLink, processed, urlQueue, robotsChecker, wordCounts, targetLanguage));
             while (urlQueue.isEmpty()) {
                 try {
                     Thread.sleep(1000);
@@ -87,7 +145,7 @@ public class OireachtoBot extends AbstractBot implements Runnable {
                     Thread.currentThread().interrupt();
                 }
             }
-            if (wordCounts.size() >= 18000) {
+            if (wordCounts.size() >= maxWords) {
                 break;
             }
         }
@@ -160,6 +218,25 @@ public class OireachtoBot extends AbstractBot implements Runnable {
         }
         System.out.println("=============================");
         System.out.println("Total: " + j + " / " + k);
+        File file = new File("results."+targetLanguage+".csv");
+        try {
+            file.createNewFile();
+            PrintWriter printWriter = new PrintWriter(new FileOutputStream(file));
+            printWriter.println("word, count");
+            for (Entry<Integer, List<String>> entry : wordsByCount.entrySet()) {
+                for (String word : entry.getValue()) {
+                    printWriter.print(word);
+                    printWriter.print(",");
+                    printWriter.print(entry.getKey());
+                    printWriter.println();
+                }
+            }         
+            printWriter.flush();
+            printWriter.close();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     private void printEntry(int i, Entry<Integer, List<String>> entry) {

@@ -6,6 +6,15 @@ import java.util.Locale;
 import java.util.Map;
 
 public class WordCounter {
+    private String targetLanguage = "GA"; 
+    
+    public WordCounter() {
+    }
+    
+    public WordCounter(String targetLanguage) {
+        this.targetLanguage = targetLanguage.toUpperCase();
+    }
+    
     public Map<String, Integer> countWords(String input) {
         HashMap<String, Integer> result = new HashMap<String, Integer>();
 
@@ -14,7 +23,7 @@ public class WordCounter {
 
     public Map<String, Integer> countWords(String input, Map<String, Integer> result) {
         //print each word in order
-        BreakIterator boundary = BreakIterator.getWordInstance(new Locale("GA", "IE"));
+        BreakIterator boundary = BreakIterator.getWordInstance(new Locale(targetLanguage, "IE"));
         boundary.setText(input);
         int start = boundary.first();
         for (int end = boundary.next();

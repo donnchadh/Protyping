@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -141,18 +142,14 @@ public abstract class AbstractBot implements Runnable {
                     if (!canCrawl) {
                         return new NodeList();
                     }
-                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                    connection.setRequestProperty("User-Agent", "Mozilla");
-                    // connection.setFollowRedirects(true);
-                    connection.connect();
-                    Parser parser = new Parser(connection);
-                    NodeFilter linkFilter = new NodeFilter() {
-    
-                        public boolean accept(Node node) {
-                            return node instanceof LinkTag;
-                        }
-                    };
-                    if (connection.getResponseCode() == 200) {
+                    Parser parser = buildParser(url);
+                    if (parser != null) {
+                        NodeFilter linkFilter = new NodeFilter() {
+                            
+                            public boolean accept(Node node) {
+                                return node instanceof LinkTag;
+                            }
+                        };
                         NodeList top = parser.parse(new NodeFilter(){
                             public boolean accept(Node arg0) {
                                 return true;
@@ -172,7 +169,27 @@ public abstract class AbstractBot implements Runnable {
                 }
                 return links;
             }
-    
+
+            protected Parser buildParser(URL url) throws IOException, ParserException {
+                Parser parser;
+                HttpURLConnection connection = openConnection(url);
+                if (connection.getResponseCode() == 200) {
+                    Parser parser1 = new Parser(connection);
+                    parser = parser1;
+                } else {
+                    parser = null;
+                }
+                return parser;
+            }
+
+            protected HttpURLConnection openConnection(URL url) throws IOException {
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestProperty("User-Agent", "Mozilla");
+                // connection.setFollowRedirects(true);
+                connection.connect();
+                return connection;
+            }
+
             protected void processDocument(NodeList top) {
             }
 
