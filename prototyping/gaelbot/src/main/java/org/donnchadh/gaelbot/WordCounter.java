@@ -1,17 +1,21 @@
 package org.donnchadh.gaelbot;
 
 import java.text.BreakIterator;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class WordCounter {
-    private String targetLanguage = "GA"; 
+    private String targetLanguage = "GA";
+    private Set<String> ignoreWords = Collections.emptySet(); 
     
     public WordCounter() {
     }
     
-    public WordCounter(String targetLanguage) {
+    public WordCounter(String targetLanguage, Set<String> ignoreWords) {
+        this.ignoreWords = ignoreWords;
         this.targetLanguage = targetLanguage.toUpperCase();
     }
     
@@ -49,12 +53,15 @@ public class WordCounter {
         return result;
     }
     
-    private boolean isWord(CharSequence word) {
+    private boolean isWord(String word) {
         boolean result = true;
         for (int i = 0; i < word.length(); i++) {
             if (!Character.isLetter(word.charAt(i))) {
                 return false;
             }
+        }
+        if (ignoreWords.contains(word)) {
+            return false;
         }
         return result;
     }

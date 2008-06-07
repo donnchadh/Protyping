@@ -1,6 +1,7 @@
 package org.donnchadh.gaelbot;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,10 +9,11 @@ import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,16 +35,21 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.htmlparser.util.SimpleNodeIterator;
 
+import com.csvreader.CsvReader;
+
 public class OireachtoBot extends AbstractBot implements Runnable {
     private static final class DCLinkVisitorTask extends LinkVisitorTask {
         private final Map<String, Integer> wordCounts;
         private final String targetLanguage;
+        private final Set<String> ignoreWords;
 
         private DCLinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue,
-                RobotsChecker robotsChecker, Map<String, Integer> wordCounts, String targetLanguage) {
+                RobotsChecker robotsChecker, Map<String, Integer> wordCounts, String targetLanguage,
+                Set<String> ignoreWords) {
             super(newLink, processed, urlQueue, robotsChecker);
             this.wordCounts = wordCounts;
             this.targetLanguage = targetLanguage;
+            this.ignoreWords = ignoreWords;
         }
 
         @Override
@@ -66,7 +73,7 @@ public class OireachtoBot extends AbstractBot implements Runnable {
                 }
             }
             if (targetLanguage.equalsIgnoreCase(language)) {
-                new WordCounter().countWords(new OireachtoCleaner().clean(top), wordCounts);
+                new WordCounter(targetLanguage, ignoreWords).countWords(new OireachtoCleaner().clean(top), wordCounts);
             }
         }
 
@@ -121,6 +128,25 @@ public class OireachtoBot extends AbstractBot implements Runnable {
     }
 
     public void run() {
+        final Set<String> ignoreWords = new HashSet<String>();
+        try {
+            Set<String> keepWords = new HashSet<String>();
+            CsvReader csvReader = new CsvReader(new FileInputStream("commonWords.csv"), Charset.forName("UTF-8"));
+            csvReader.readHeaders();
+            String[] header = csvReader.getHeaders();
+            while (csvReader.readRecord()) {
+                String[] values = csvReader.getValues();
+                if (values[1].equalsIgnoreCase(targetLanguage)) {
+                    keepWords.add(values[0]);
+                } else {
+                    ignoreWords.add(values[0]);
+                }
+            }
+            ignoreWords.removeAll(keepWords);
+        } catch (IOException e) {
+            e.printStackTrace(System.err);
+        }
+        
         final ExecutorService executor = Executors.newFixedThreadPool(50);
         final Queue<String> urlQueue = new ConcurrentLinkedQueue<String>();
         final Queue<String> hostQueue = new ConcurrentLinkedQueue<String>();
@@ -137,7 +163,7 @@ public class OireachtoBot extends AbstractBot implements Runnable {
             } catch (MalformedURLException e1) {
                 e1.printStackTrace();
             }
-            executor.execute(new DCLinkVisitorTask(newLink, processed, urlQueue, robotsChecker, wordCounts, targetLanguage));
+            executor.execute(new DCLinkVisitorTask(newLink, processed, urlQueue, robotsChecker, wordCounts, targetLanguage, ignoreWords));
             while (urlQueue.isEmpty()) {
                 try {
                     Thread.sleep(1000);
@@ -154,11 +180,7 @@ public class OireachtoBot extends AbstractBot implements Runnable {
     }
 
     private void printTopNWords(Map<String, Integer> wordCounts, int n) {
-        SortedMap<Integer, List<String>> wordsByCount = new TreeMap<Integer, List<String>>(new Comparator<Integer>(){
-
-            public int compare(Integer o1, Integer o2) {
-                return o2.compareTo(o1);
-            }});
+        SortedMap<Integer, List<String>> wordsByCount = new TreeMap<Integer, List<String>>(new ReverseIntegerComparator());
         for (Entry<String, Integer> entry : wordCounts.entrySet()) {
             List<String> words;
             if (!wordsByCount.containsKey(entry.getValue())) {
@@ -221,7 +243,7 @@ public class OireachtoBot extends AbstractBot implements Runnable {
         File file = new File("results."+targetLanguage+".csv");
         try {
             file.createNewFile();
-            PrintWriter printWriter = new PrintWriter(new FileOutputStream(file));
+            PrintWriter printWriter = new PrintWriter(file, "UTF-8");
             printWriter.println("word, count");
             for (Entry<Integer, List<String>> entry : wordsByCount.entrySet()) {
                 for (String word : entry.getValue()) {
