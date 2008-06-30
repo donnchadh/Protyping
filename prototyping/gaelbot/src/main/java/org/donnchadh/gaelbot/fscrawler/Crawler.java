@@ -1,6 +1,7 @@
 package org.donnchadh.gaelbot.fscrawler;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.IOException;
 
 public class Crawler {
@@ -8,19 +9,21 @@ public class Crawler {
     }
     
     public static void main(String[] args) throws IOException {
-        new Crawler().crawl(new File("/home/donnchadh/"));
+        new Crawler().crawl(new File("/home/donnchadh/"), new PdfFilter());
     }
     
-    private void crawl(File root) throws IOException {
+    private void crawl(File root, FileFilter filter) throws IOException {
         if (isSymLink(root)) {
             return;
         }
         if (root.isDirectory()) {
             for (File file: root.listFiles()) {
-                crawl(file);
+                crawl(file, filter);
             }
-        } else if (isPdf(root)) {
-            System.out.println(root.getAbsolutePath());
+        } else {
+            if (filter.accept(root)) {
+                System.out.println(root.getAbsolutePath());
+            }
         }
     }
 
@@ -28,7 +31,11 @@ public class Crawler {
         return !root.getAbsolutePath().equals(root.getCanonicalPath());
     }
 
-    private boolean isPdf(File root) {
-        return root.getName().toLowerCase().endsWith(".pdf");
+    static class PdfFilter implements FileFilter {
+
+        public boolean accept(File file) {
+            return file.getName().toLowerCase().endsWith(".pdf");
+        }
+        
     }
 }
