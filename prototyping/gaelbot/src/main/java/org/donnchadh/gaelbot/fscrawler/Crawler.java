@@ -8,21 +8,21 @@ public class Crawler {
     public Crawler() {
     }
     
-    public static void main(String[] args) throws IOException {
-        new Crawler().crawl(new File("/home/donnchadh/"), new PdfFilter());
+    public void crawl(File root, FileHandler handler) throws IOException {
+        doCrawl(root.getCanonicalFile(), handler);
     }
-    
-    private void crawl(File root, FileFilter filter) throws IOException {
+
+    private void doCrawl(File root, FileHandler handler) throws IOException {
         if (isSymLink(root)) {
             return;
         }
         if (root.isDirectory()) {
             for (File file: root.listFiles()) {
-                crawl(file, filter);
+                doCrawl(file, handler);
             }
         } else {
-            if (filter.accept(root)) {
-                System.out.println(root.getAbsolutePath());
+            if (handler.accept(root)) {
+                handler.handle(root);
             }
         }
     }
