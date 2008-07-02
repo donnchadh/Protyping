@@ -23,4 +23,11 @@ public class DocumentRepository {
     public byte[] getContent(long id) {
         return fileSystemService.getContent(root, id);
     }
+
+    public RepositoryDocument importDocument(File file) {
+        // TODO get bytes from file
+        byte[] bytes = new byte[]{};
+        long id = fileSystemService.addContent(root, bytes);
+        return new RepositoryDocument(this, id);
+    }
 }

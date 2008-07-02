@@ -2,9 +2,7 @@ package org.donnchadh.gaelbot;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -13,7 +11,6 @@ import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -27,86 +24,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.htmlparser.Node;
-import org.htmlparser.NodeFilter;
-import org.htmlparser.Parser;
-import org.htmlparser.tags.MetaTag;
-import org.htmlparser.util.NodeList;
-import org.htmlparser.util.ParserException;
-import org.htmlparser.util.SimpleNodeIterator;
 
 import com.csvreader.CsvReader;
 
 public class OireachtoBot extends AbstractBot implements Runnable {
-    private static final class DCLinkVisitorTask extends LinkVisitorTask {
-        private final Map<String, Integer> wordCounts;
-        private final String targetLanguage;
-        private final Set<String> ignoreWords;
-
-        private DCLinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue,
-                RobotsChecker robotsChecker, Map<String, Integer> wordCounts, String targetLanguage,
-                Set<String> ignoreWords) {
-            super(newLink, processed, urlQueue, robotsChecker);
-            this.wordCounts = wordCounts;
-            this.targetLanguage = targetLanguage;
-            this.ignoreWords = ignoreWords;
-        }
-
-        @Override
-        protected void processDocument(NodeList top) {
-            NodeList metaTags = top.extractAllNodesThatMatch(new NodeFilter(){
-
-                public boolean accept(Node node) {
-                    return node instanceof MetaTag;
-                }
-                
-            });
-            String language = null;
-            SimpleNodeIterator metaTagElements = metaTags.elements();
-            while (metaTagElements.hasMoreNodes()) {
-                MetaTag tag = (MetaTag) metaTagElements.nextNode();
-                
-                if (isDublinCoreMetaTag(tag)) {
-                    if (tag.getMetaTagName().equalsIgnoreCase("DC.Language")) {
-                        language = tag.getMetaContent();
-                    }
-                }
-            }
-            if (targetLanguage.equalsIgnoreCase(language)) {
-                new WordCounter(targetLanguage, ignoreWords).countWords(new OireachtoCleaner().clean(top), wordCounts);
-            }
-        }
-
-        private boolean isDublinCoreMetaTag(MetaTag tag) {
-            return tag.getMetaTagName() != null &&  tag.getMetaTagName().startsWith("DC.");
-        }
-        
-        @Override
-        protected Parser buildParser(URL url) throws ParserException, IOException {
-            File file = new File(new File(new File(targetLanguage), url.getHost()), url.getPath());
-            if (!file.exists()) {
-                file.getParentFile().mkdirs();
-                file.createNewFile();
-                HttpURLConnection connection = openConnection(url);
-                InputStream s = connection.getInputStream();
-                byte[] b = new byte[16384];
-                int c = 0;
-                FileOutputStream o = new FileOutputStream(file);
-                try {
-                    do {
-                        o.write(b, 0, c);
-                        c = s.read(b);
-                    } while (c > 0);
-                    o.flush();
-                } finally {
-                    o.close();
-                }
-                s.close();
-            }
-            return super.buildParser(url);
-        }
-    }
-
     private String targetLanguage = "ga";
     private String rootUrl = "http://achtanna.oireachtas.ie/ga.toc.decade.html";
     private int maxWords = 18000;

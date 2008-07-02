@@ -12,35 +12,6 @@ import org.htmlparser.util.ParserException;
 import org.htmlparser.util.SimpleNodeIterator;
 
 public class OireachtoCleaner extends AbstractCleaner {
-    public String clean(String input) {
-        Parser parser = Parser.createParser(input, "UTF-8");
-        return clean(parser);
-    }
-
-    public String clean(URL input) {
-        Parser parser;
-        try {
-            parser = new Parser(input.openConnection());
-        } catch (ParserException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return clean(parser);
-    }
-    public String clean(Parser parser) {
-        NodeList top;
-        try {
-            top = parser.parse(new NodeFilter(){
-                public boolean accept(Node arg0) {
-                    return true;
-                }});
-        } catch (ParserException e) {
-            throw new RuntimeException(e);
-        }
-        return clean(top);
-    }
-
     public String clean(NodeList top) {
         NodeList nodes =  top.extractAllNodesThatMatch(new NodeFilter(){
             public boolean accept(Node node) {
