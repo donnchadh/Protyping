@@ -20,7 +20,7 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
-class LinkVisitorTask implements Runnable {
+class LinkVisitorTask implements Runnable, DocumentProcessor, UrlProcessor  {
     private final String newLink;
 
     private final Set<String> processed;
@@ -59,6 +59,7 @@ class LinkVisitorTask implements Runnable {
             throw new RuntimeException(e);
         }
     }
+    
     private NodeList visitUrl(String newLink) {
         NodeList links;
         try {
@@ -76,31 +77,44 @@ class LinkVisitorTask implements Runnable {
             if (!canCrawl) {
                 return new NodeList();
             }
-            Parser parser = buildParser(url);
-            if (parser != null) {
-                NodeFilter linkFilter = new NodeFilter() {
-                    
-                    public boolean accept(Node node) {
-                        return node instanceof LinkTag;
-                    }
-                };
-                NodeList top = parser.parse(new NodeFilter(){
-                    public boolean accept(Node arg0) {
-                        return true;
-                    }});
-                processDocument(top);
-                links = top.extractAllNodesThatMatch(linkFilter);
-                System.out.println(newLink);
-            } else {
-                links = new NodeList();
-            }
-        } catch (ParserException e) {
-            links = new NodeList();
+            links = processUrl(url); 
         } catch (MalformedURLException e) {
             links = new NodeList();
         } catch (IOException e) {
             links = new NodeList();
         }
+        return links;
+    }
+
+    public NodeList processUrl(URL url) throws IOException {
+        NodeList links;
+        try {
+            Parser parser = buildParser(url);
+            if (parser != null) {
+                NodeList top = parser.parse(new NodeFilter(){
+                    public boolean accept(Node arg0) {
+                        return true;
+                    }});
+                links = processDocument(top);
+                System.out.println(url.toString());
+            } else {
+                links = new NodeList();
+            }
+        } catch (ParserException e) {
+            links = new NodeList();
+        }
+        return links;
+    }
+
+    private NodeList extractLinks(NodeList top) {
+        NodeList links;
+        NodeFilter linkFilter = new NodeFilter() {
+            
+            public boolean accept(Node node) {
+                return node instanceof LinkTag;
+            }
+        };
+        links = top.extractAllNodesThatMatch(linkFilter);
         return links;
     }
 
@@ -124,7 +138,8 @@ class LinkVisitorTask implements Runnable {
         return connection;
     }
 
-    protected void processDocument(NodeList top) {
+    public NodeList processDocument(NodeList top) {
+        return extractLinks(top);
     }
 
 }

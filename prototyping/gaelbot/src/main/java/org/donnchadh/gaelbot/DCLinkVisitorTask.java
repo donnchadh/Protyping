@@ -36,7 +36,7 @@ final class DCLinkVisitorTask extends LinkVisitorTask {
     }
 
     @Override
-    protected void processDocument(NodeList top) {
+    public NodeList processDocument(NodeList top) {
         NodeList metaTags = top.extractAllNodesThatMatch(new NodeFilter(){
 
             public boolean accept(Node node) {
@@ -58,6 +58,7 @@ final class DCLinkVisitorTask extends LinkVisitorTask {
         if (targetLanguage.equalsIgnoreCase(language)) {
             new WordCounter(targetLanguage, ignoreWords).countWords(new OireachtoCleaner().clean(top), wordCounts);
         }
+        return super.processDocument(top);
     }
 
     private boolean isDublinCoreMetaTag(MetaTag tag) {
@@ -65,7 +66,7 @@ final class DCLinkVisitorTask extends LinkVisitorTask {
     }
     
     @Override
-    protected Parser buildParser(URL url) throws ParserException, IOException {
+    public NodeList processUrl(URL url) throws IOException {
         File file = new File(new File(new File(targetLanguage), url.getHost()), url.getPath());
         if (!file.exists()) {
             file.getParentFile().mkdirs();
@@ -86,6 +87,6 @@ final class DCLinkVisitorTask extends LinkVisitorTask {
             }
             s.close();
         }
-        return super.buildParser(url);
+        return super.processUrl(url);
     }
 }
