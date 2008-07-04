@@ -1,5 +1,7 @@
 package org.donnchadh.gaelbot;
 
-public interface DocumentProcessor {
+import org.htmlparser.util.NodeList;
 
+public interface DocumentProcessor {
+    void processDocument(NodeList top);
 }

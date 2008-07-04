@@ -1,5 +1,8 @@
 package org.donnchadh.gaelbot;
 
-public interface UrlProcessor {
+import java.io.IOException;
+import java.net.URL;
 
+public interface UrlProcessor {
+    void processUrl(URL url) throws IOException;
 }

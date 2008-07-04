@@ -11,6 +11,7 @@ import java.net.URLConnection;
 import java.util.Queue;
 import java.util.Set;
 
+import org.donnchadh.gaelbot.urlprocessors.CompositeUrlProcessor;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;
@@ -20,7 +21,8 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
-class LinkVisitorTask implements Runnable, DocumentProcessor, UrlProcessor  {
+class LinkVisitorTask extends AbstractLinkVisitorTask  {
+    
     private final String newLink;
 
     private final Set<String> processed;
@@ -28,18 +30,43 @@ class LinkVisitorTask implements Runnable, DocumentProcessor, UrlProcessor  {
     private final Queue<String> urlQueue;
 
     private final RobotsChecker robotsChecker;
+
+    private final LinkVisitorDocumentProcessor documentProcessor;
+    
+    
     
     LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker) {
+        this(newLink, processed,  urlQueue,  robotsChecker, new LinkVisitorDocumentProcessor());
+    }
+
+    private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker, LinkVisitorDocumentProcessor documentProcessor) {
+        this(newLink, processed,  urlQueue,  robotsChecker, documentProcessor, new LinkVisitorUrlProcessor(documentProcessor));
+    }
+    
+    private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker, LinkVisitorDocumentProcessor documentProcessor, DocumentProcessor otherDP, UrlProcessor otherUP) {
+        this(newLink, processed,  urlQueue,  robotsChecker, documentProcessor, new CompositeUrlProcessor(new LinkVisitorUrlProcessor(documentProcessor, otherDP), otherUP));
+    }
+    
+    LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker,
+            UrlProcessor urlProcessor, DocumentProcessor documentProcessor) {
+        this(newLink, processed,  urlQueue,  robotsChecker, new LinkVisitorDocumentProcessor(), documentProcessor, urlProcessor);
+    }
+
+    private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker,
+            LinkVisitorDocumentProcessor documentProcessor, UrlProcessor urlProcessor) {
+        super(urlProcessor);
         this.newLink = newLink;
         this.processed = processed;
         this.urlQueue = urlQueue;
         this.robotsChecker = robotsChecker;
+        this.documentProcessor = documentProcessor;
     }
 
     public void run() {
 
         try {
-            NodeList links = visitUrl(newLink);
+            visitUrl(newLink);
+            NodeList links = documentProcessor.getLinks();
             links.visitAllNodesWith(new NodeVisitor() {
                 @Override
                 public void visitTag(Tag tag) {
@@ -60,8 +87,7 @@ class LinkVisitorTask implements Runnable, DocumentProcessor, UrlProcessor  {
         }
     }
     
-    private NodeList visitUrl(String newLink) {
-        NodeList links;
+    protected void visitUrl(String newLink) {
         try {
             URL url = new URL(newLink);
             boolean canCrawl = true;
@@ -74,51 +100,17 @@ class LinkVisitorTask implements Runnable, DocumentProcessor, UrlProcessor  {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
-            if (!canCrawl) {
-                return new NodeList();
+            if (canCrawl) {
+                processUrl(url);
             }
-            links = processUrl(url); 
         } catch (MalformedURLException e) {
-            links = new NodeList();
+            // TODO
         } catch (IOException e) {
-            links = new NodeList();
+            // TODO
         }
-        return links;
     }
 
-    public NodeList processUrl(URL url) throws IOException {
-        NodeList links;
-        try {
-            Parser parser = buildParser(url);
-            if (parser != null) {
-                NodeList top = parser.parse(new NodeFilter(){
-                    public boolean accept(Node arg0) {
-                        return true;
-                    }});
-                links = processDocument(top);
-                System.out.println(url.toString());
-            } else {
-                links = new NodeList();
-            }
-        } catch (ParserException e) {
-            links = new NodeList();
-        }
-        return links;
-    }
-
-    private NodeList extractLinks(NodeList top) {
-        NodeList links;
-        NodeFilter linkFilter = new NodeFilter() {
-            
-            public boolean accept(Node node) {
-                return node instanceof LinkTag;
-            }
-        };
-        links = top.extractAllNodesThatMatch(linkFilter);
-        return links;
-    }
-
-    protected Parser buildParser(URL url) throws IOException, ParserException {
+    protected static Parser buildParser(URL url) throws IOException, ParserException {
         Parser parser;
         URLConnection connection = openConnection(url);
         if (!(connection instanceof HttpURLConnection) ||
@@ -130,7 +122,7 @@ class LinkVisitorTask implements Runnable, DocumentProcessor, UrlProcessor  {
         return parser;
     }
 
-    protected URLConnection openConnection(URL url) throws IOException {
+    protected static URLConnection openConnection(URL url) throws IOException {
         URLConnection connection =  url.openConnection();
         connection.setRequestProperty("User-Agent", "Mozilla");
         // connection.setFollowRedirects(true);
@@ -138,8 +130,31 @@ class LinkVisitorTask implements Runnable, DocumentProcessor, UrlProcessor  {
         return connection;
     }
 
-    public NodeList processDocument(NodeList top) {
-        return extractLinks(top);
+    static class LinkVisitorDocumentProcessor implements DocumentProcessor {
+        private NodeList links = new NodeList();
+        
+        public void processDocument(NodeList top) {
+            links = extractLinks(top);
+        }
+
+        public NodeList getLinks() {
+            return links;
+        }
+        
+        private NodeList extractLinks(NodeList top) {
+            NodeList links;
+            NodeFilter linkFilter = new NodeFilter() {
+
+                public boolean accept(Node node) {
+                    return node instanceof LinkTag;
+                }
+            };
+            links = top.extractAllNodesThatMatch(linkFilter);
+            return links;
+        }
+        
+        
+
     }
 
 }
