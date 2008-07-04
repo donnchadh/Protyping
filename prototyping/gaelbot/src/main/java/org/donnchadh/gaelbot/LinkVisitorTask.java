@@ -4,17 +4,12 @@
 package org.donnchadh.gaelbot;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Queue;
 import java.util.Set;
 
 import org.donnchadh.gaelbot.urlprocessors.CompositeUrlProcessor;
-import org.htmlparser.Node;
-import org.htmlparser.NodeFilter;
-import org.htmlparser.Parser;
 import org.htmlparser.Tag;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
@@ -31,29 +26,29 @@ class LinkVisitorTask extends AbstractLinkVisitorTask  {
 
     private final RobotsChecker robotsChecker;
 
-    private final LinkVisitorDocumentProcessor documentProcessor;
+    private final LinkExtractingDocumentProcessor documentProcessor;
     
     
     
     LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker) {
-        this(newLink, processed,  urlQueue,  robotsChecker, new LinkVisitorDocumentProcessor());
+        this(newLink, processed,  urlQueue,  robotsChecker, new LinkExtractingDocumentProcessor());
     }
 
-    private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker, LinkVisitorDocumentProcessor documentProcessor) {
-        this(newLink, processed,  urlQueue,  robotsChecker, documentProcessor, new LinkVisitorUrlProcessor(documentProcessor));
+    private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker, LinkExtractingDocumentProcessor documentProcessor) {
+        this(newLink, processed,  urlQueue,  robotsChecker, documentProcessor, new DocumentHandlingUrlProcessor(documentProcessor));
     }
     
-    private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker, LinkVisitorDocumentProcessor documentProcessor, DocumentProcessor otherDP, UrlProcessor otherUP) {
-        this(newLink, processed,  urlQueue,  robotsChecker, documentProcessor, new CompositeUrlProcessor(new LinkVisitorUrlProcessor(documentProcessor, otherDP), otherUP));
+    private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker, LinkExtractingDocumentProcessor documentProcessor, DocumentProcessor otherDP, UrlProcessor otherUP) {
+        this(newLink, processed,  urlQueue,  robotsChecker, documentProcessor, new CompositeUrlProcessor(new DocumentHandlingUrlProcessor(documentProcessor, otherDP), otherUP));
     }
     
     LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker,
             UrlProcessor urlProcessor, DocumentProcessor documentProcessor) {
-        this(newLink, processed,  urlQueue,  robotsChecker, new LinkVisitorDocumentProcessor(), documentProcessor, urlProcessor);
+        this(newLink, processed,  urlQueue,  robotsChecker, new LinkExtractingDocumentProcessor(), documentProcessor, urlProcessor);
     }
 
     private LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker,
-            LinkVisitorDocumentProcessor documentProcessor, UrlProcessor urlProcessor) {
+            LinkExtractingDocumentProcessor documentProcessor, UrlProcessor urlProcessor) {
         super(urlProcessor);
         this.newLink = newLink;
         this.processed = processed;
@@ -108,53 +103,6 @@ class LinkVisitorTask extends AbstractLinkVisitorTask  {
         } catch (IOException e) {
             // TODO
         }
-    }
-
-    protected static Parser buildParser(URL url) throws IOException, ParserException {
-        Parser parser;
-        URLConnection connection = openConnection(url);
-        if (!(connection instanceof HttpURLConnection) ||
-                ((HttpURLConnection)connection).getResponseCode() == 200) {
-            parser = new Parser(connection);
-        } else {
-            parser = null;
-        }
-        return parser;
-    }
-
-    protected static URLConnection openConnection(URL url) throws IOException {
-        URLConnection connection =  url.openConnection();
-        connection.setRequestProperty("User-Agent", "Mozilla");
-        // connection.setFollowRedirects(true);
-        connection.connect();
-        return connection;
-    }
-
-    static class LinkVisitorDocumentProcessor implements DocumentProcessor {
-        private NodeList links = new NodeList();
-        
-        public void processDocument(NodeList top) {
-            links = extractLinks(top);
-        }
-
-        public NodeList getLinks() {
-            return links;
-        }
-        
-        private NodeList extractLinks(NodeList top) {
-            NodeList links;
-            NodeFilter linkFilter = new NodeFilter() {
-
-                public boolean accept(Node node) {
-                    return node instanceof LinkTag;
-                }
-            };
-            links = top.extractAllNodesThatMatch(linkFilter);
-            return links;
-        }
-        
-        
-
     }
 
 }
