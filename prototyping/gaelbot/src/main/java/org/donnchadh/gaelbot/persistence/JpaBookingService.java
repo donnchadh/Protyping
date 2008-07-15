@@ -1,4 +1,4 @@
-package org.springframework.webflow.samples.booking;
+package org.donnchadh.gaelbot.persistence;
 
 import java.util.List;
 
