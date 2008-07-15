@@ -30,4 +30,8 @@ public class DocumentRepository {
         long id = fileSystemService.addContent(root, bytes);
         return new RepositoryDocument(this, id);
     }
+    
+    public String getRepositoryPath() {
+        return root.getPath();
+    }
 }

@@ -1,6 +1,17 @@
 package org.donnchadh.gaelbot.domainmodel;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
+import org.donnchadh.gaelbot.domainmodel.servicelocator.FactoryRegistry;
+
+@Entity
 public class RepositoryDocument {
+    @Id
+    @GeneratedValue
+    private Long id;
+    
     private DocumentRepository repository;
     
     private long fileId;
@@ -12,5 +23,14 @@ public class RepositoryDocument {
     
     public byte[] getContent() {
         return repository.getContent(fileId);
+    }
+    
+    
+    public void setRepositoryPath(String path) {
+        repository = FactoryRegistry.getInstance().getDocumentRepositoryFactory().getDocumentRepository(path);
+    }
+    
+    public String getRepositoryPath() {
+        return repository.getRepositoryPath();
     }
 }
