@@ -1,6 +1,7 @@
 package org.donnchadh.gaelbot.domainmodel;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.donnchadh.gaelbot.services.FileSystemService;
 
@@ -8,10 +9,10 @@ public class DocumentRepository {
     private File root;
     private final FileSystemService fileSystemService;
     
-    public DocumentRepository(String path, FileSystemService fileSystemService) {
+    public DocumentRepository(String path, FileSystemService fileSystemService) throws IOException {
         root = new File(path);
         if (!root.exists()) {
-            throw new IllegalArgumentException("Path doesn't exist");
+            throw new IllegalArgumentException("Path doesn't exist: " + root.getCanonicalPath());
         }
         this.fileSystemService = fileSystemService;
     }

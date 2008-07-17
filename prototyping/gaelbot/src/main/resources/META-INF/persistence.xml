@@ -3,11 +3,11 @@
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
              xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd" 
              version="1.0">
-   <persistence-unit name="bookingDatabase">
+   <persistence-unit name="documentDatabase">
       <provider>org.hibernate.ejb.HibernatePersistence</provider>
-      <class>org.springframework.webflow.samples.booking.User</class>
-      <class>org.springframework.webflow.samples.booking.Booking</class>
-      <class>org.springframework.webflow.samples.booking.Hotel</class>
+      <class>org.donnchadh.gaelbot.domainmodel.Document</class>
+      <class>org.donnchadh.gaelbot.domainmodel.RepositoryDocument</class>
+      <class>org.donnchadh.gaelbot.domainmodel.Language</class>
       <properties>
       	 <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect"/>
       	 <property name="hibernate.hbm2ddl.auto" value="create-drop" />

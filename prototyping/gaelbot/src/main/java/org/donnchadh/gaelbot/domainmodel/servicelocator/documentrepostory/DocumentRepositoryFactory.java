@@ -4,4 +4,6 @@ import org.donnchadh.gaelbot.domainmodel.DocumentRepository;
 
 public interface DocumentRepositoryFactory {
     DocumentRepository getDocumentRepository(String path);
+
+    DocumentRepository getDefaultDocumentRepository();
 }

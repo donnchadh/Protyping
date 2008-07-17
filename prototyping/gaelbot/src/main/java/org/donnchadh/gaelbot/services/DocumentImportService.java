@@ -3,28 +3,32 @@ package org.donnchadh.gaelbot.services;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.nio.charset.Charset;
 
-import org.donnchadh.gaelbot.AbstractBot;
-import org.donnchadh.gaelbot.domainmodel.Document;
+import javax.persistence.EntityManager;
+import javax.persistence.Persistence;
+
 import org.donnchadh.gaelbot.domainmodel.DocumentRepository;
-import org.donnchadh.gaelbot.domainmodel.Language;
-import org.donnchadh.gaelbot.domainmodel.RepositoryDocument;
 import org.donnchadh.gaelbot.fscrawler.AbstractFileHandler;
 import org.donnchadh.gaelbot.fscrawler.Crawler;
+import org.donnchadh.gaelbot.persistence.DocumentService;
+import org.donnchadh.gaelbot.persistence.JpaDocumentService;
 
 public class DocumentImportService {
-    private static final Charset UTF_8 = Charset.forName(AbstractBot.UTF_8);
-    private final DocumentRepository documentRepository;
-
-    public DocumentImportService(DocumentRepository documentRepository) {
-        this.documentRepository = documentRepository;
+    private DocumentService documentService;
+    
+    public DocumentImportService(DocumentService documentService) {
+        this.documentService = documentService;
     }
     
     public static void main(String[] args) throws IOException {
-        DocumentImportService documentImportService = new DocumentImportService(new DocumentRepository("repository", new FileSystemService()));
+        String repositoryPath = "repository";
+        new File(repositoryPath).mkdirs();
+        DocumentRepository repository = new DocumentRepository(repositoryPath, new FileSystemService());
+        JpaDocumentService documentService = new JpaDocumentService(repository);
+        EntityManager entityManager =  Persistence.createEntityManagerFactory("documentDatabase").createEntityManager();
+        documentService.setEntityManager(entityManager);
+        DocumentImportService documentImportService = new DocumentImportService(documentService);
         documentImportService.importDocuments(new File("en"));
     }
     
@@ -33,21 +37,12 @@ public class DocumentImportService {
         AbstractFileHandler handler = new AbstractFileHandler(filter) {
                     @Override
                     public void handle(File file) {
-                        importDocumentFile(file);
+                        // TODO
+                        URL originalUrl = null;
+                        documentService.importDocumentFile(file, originalUrl);
                     }
                 };
         new Crawler().crawl(root, handler);
-    }
-    
-    protected Document importDocumentFile(File file) {
-        RepositoryDocument repositoryDocument = documentRepository.importDocument(file);
-        Charset characterSet = UTF_8;
-        // TODO
-        URL originalUrl = null;
-        URI uri = null;
-        Language language = null;
-        Document document = new Document(repositoryDocument, originalUrl, uri, language, characterSet);
-        return document;
     }
     
     static class HtmlFilter implements FileFilter {
