@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 @Entity
 public class Document {
@@ -22,7 +23,8 @@ public class Document {
     private URI uri;
     @ManyToOne
     private Language language;
-    private Charset characterSet;
+    @Transient
+    private Charset characterSet = Charset.forName("UTF-8");
     
     public Document(RepositoryDocument repositoryDocument, URL originalUrl, URI uri, Language language, Charset characterSet) {
         this.repositoryDocument = repositoryDocument;

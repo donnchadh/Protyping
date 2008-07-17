@@ -3,6 +3,7 @@ package org.donnchadh.gaelbot.domainmodel;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Transient;
 
 import org.donnchadh.gaelbot.domainmodel.servicelocator.FactoryRegistry;
 
@@ -12,6 +13,7 @@ public class RepositoryDocument {
     @GeneratedValue
     private Long id;
     
+    @Transient
     private DocumentRepository repository;
     
     private long fileId;

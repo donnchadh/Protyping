@@ -3,6 +3,7 @@ package org.donnchadh.gaelbot.services;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.persistence.EntityManager;
@@ -32,13 +33,33 @@ public class DocumentImportService {
         documentImportService.importDocuments(new File("en"));
     }
     
-    public void importDocuments(File root) throws IOException {
+    public void importDocuments(final File root) throws IOException {
         HtmlFilter filter = new HtmlFilter();
         AbstractFileHandler handler = new AbstractFileHandler(filter) {
                     @Override
                     public void handle(File file) {
+                        File pathComponent = file;
+                        StringBuilder path = new StringBuilder();
+                        String hostname = null;
+                        try {
+                            while (hostname == null) {
+                                if (pathComponent.getParentFile().getCanonicalFile().equals(root.getCanonicalFile())) {
+                                    hostname = pathComponent.getName();
+                                } else {
+                                    path.insert(0, pathComponent.getName() + "/");
+                                    pathComponent= pathComponent.getParentFile();
+                                }
+                            }
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
                         // TODO
-                        URL originalUrl = null;
+                        URL originalUrl;
+                        try {
+                            originalUrl = new URL("http", hostname, 80, path.toString());
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
                         documentService.importDocumentFile(file, originalUrl);
                     }
                 };
