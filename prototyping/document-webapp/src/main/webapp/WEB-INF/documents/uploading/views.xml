@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+	
+<tiles-definitions>
+	
+	<definition name="enterDocumentDetails" extends="standardLayout">
+		<put-attribute name="body" value="details.body" />
+	</definition>
+	
+	<definition name="details.body" template="/WEB-INF/documents/uploading/enterDocumentDetails.jsp">
+		<put-attribute name="messages" value="/WEB-INF/documents/uploading/messages.jsp" />
+        <put-attribute name="documentForm" value="/WEB-INF/documents/uploading/uploadForm.jsp" />
+	</definition>
+	
+	<definition name="reviewDocument" extends="standardLayout">
+		<put-attribute name="body" value="/WEB-INF/documents/uploading/reviewDocument.jsp" />
+	</definition>
+	
+</tiles-definitions>
