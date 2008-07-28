@@ -8,7 +8,7 @@ import java.nio.charset.Charset;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
-import org.donnchadh.gaelbot.AbstractBot;
+import org.donnchadh.gaelbot.crawler.AbstractBot;
 import org.donnchadh.gaelbot.domainmodel.Document;
 import org.donnchadh.gaelbot.domainmodel.DocumentRepository;
 import org.donnchadh.gaelbot.domainmodel.Language;

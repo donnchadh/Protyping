@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.donnchadh.gaelbot.crawler.AbstractBot;
+
 
 import com.csvreader.CsvReader;
 

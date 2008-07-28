@@ -3,6 +3,7 @@ package org.donnchadh.gaelbot;
 import java.io.IOException;
 import java.net.URL;
 
+import org.donnchadh.gaelbot.cleaners.AbstractCleaner;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;

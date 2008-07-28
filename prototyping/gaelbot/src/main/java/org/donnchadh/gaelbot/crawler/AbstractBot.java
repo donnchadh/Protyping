@@ -1,4 +1,4 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.crawler;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
