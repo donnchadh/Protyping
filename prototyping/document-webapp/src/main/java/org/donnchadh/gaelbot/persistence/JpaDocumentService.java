@@ -15,16 +15,18 @@ import org.donnchadh.gaelbot.domainmodel.DocumentRepository;
 import org.donnchadh.gaelbot.domainmodel.Language;
 import org.donnchadh.gaelbot.domainmodel.RepositoryDocument;
 import org.donnchadh.gaelbot.webapp.SearchCriteria;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 /**
- * A JPA-based implementation of the Booking Service. Delegates to a JPA entity manager to issue data access calls
+ * A JPA-based implementation of the Document Service. Delegates to a JPA entity manager to issue data access calls
  * against the backing repository. The EntityManager reference is provided by the managing container (Spring)
  * automatically.
  */
-@Service("bookingService")
+@Service("documentService")
 @Repository
 public class JpaDocumentService implements DocumentService {
     private static final Charset UTF_8 = Charset.forName(AbstractBot.UTF_8);
@@ -33,8 +35,9 @@ public class JpaDocumentService implements DocumentService {
 
     private EntityManager em;
 
-    
-    public JpaDocumentService(DocumentRepository documentRepository) {
+    @Autowired
+    public JpaDocumentService(
+            DocumentRepository documentRepository) {
         this.documentRepository = documentRepository;
     }
     
@@ -116,6 +119,7 @@ public class JpaDocumentService implements DocumentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Document> findDocuments(String username) {
       if (username != null) {
           return em.createQuery("select b from Booking b where b.user.username = :username order by b.checkinDate")
@@ -126,11 +130,14 @@ public class JpaDocumentService implements DocumentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Document> findDocuments(SearchCriteria criteria) {
       String pattern = getSearchPattern(criteria);
       return em.createQuery(
-          "select h from Hotel h where lower(h.name) like " + pattern + " or lower(h.city) like " + pattern
-              + " or lower(h.zip) like " + pattern + " or lower(h.address) like " + pattern).setMaxResults(
+          "select d from Document d where lower(d.title) like " + pattern 
+          + " or lower(d.description) like " + pattern
+//              + " or lower(h.zip) like " + pattern + " or lower(h.address) like " + pattern
+              ).setMaxResults(
           criteria.getPageSize()).setFirstResult(criteria.getPage() * criteria.getPageSize()).getResultList();
     }
 

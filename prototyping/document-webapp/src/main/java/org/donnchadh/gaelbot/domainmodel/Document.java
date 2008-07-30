@@ -25,6 +25,8 @@ public class Document {
     private Language language;
     @Transient
     private Charset characterSet = Charset.forName("UTF-8");
+    private String title;
+    private String description;
     
     public Document(RepositoryDocument repositoryDocument, URL originalUrl, URI uri, Language language, Charset characterSet) {
         this.repositoryDocument = repositoryDocument;
@@ -52,5 +54,13 @@ public class Document {
     
     public Charset getCharacterSet() {
         return characterSet;
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    public String getDescription() {
+        return description;
     }
 }

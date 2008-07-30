@@ -44,7 +44,7 @@
 	<div id="content" class="clearfix spring">
 		<div id="local" class="spring">
 			<a href="http://www.thespringexperience.com">
-				<img src="<c:url value="/images/diplomat.jpg"/>" alt="generic hotel" />
+				<img src="<c:url value="/images/diplomat.jpg"/>" alt="generic document" />
 			</a>
 			<a href="http://www.thespringexperience.com">
 				<img src="<c:url value="/images/tse.gif"/>" alt="The Spring Experience" />

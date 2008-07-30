@@ -11,8 +11,15 @@
 	<!-- Activates annotation-based bean configuration -->
 	<context:annotation-config />
 	
+    <bean class="org.donnchadh.gaelbot.domainmodel.DocumentRepository">
+        <constructor-arg value="/tmp/repo"/>
+        <constructor-arg ref="fileSystemService"/>
+    </bean>
+
+    <bean id="fileSystemService" class="org.donnchadh.gaelbot.services.FileSystemService"/>
+
 	<!-- Scans for application @Components to deploy -->
-	<context:component-scan base-package="org.donnchadh.gaelbot.domainmodel" />
+	<context:component-scan base-package="org.donnchadh.gaelbot" />
 
 	<!-- Imports the configurations of the different infrastructure systems of the application -->
 	<import resource="webmvc-config.xml" />

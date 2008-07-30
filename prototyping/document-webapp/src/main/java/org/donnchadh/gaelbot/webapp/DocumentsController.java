@@ -23,7 +23,7 @@ public class DocumentsController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @ModelAttribute("bookings")
+    @ModelAttribute("documents")
     public List<Document> index(SearchCriteria searchCriteria, Principal currentUser) {
     	if (currentUser != null) {
     	    return documentService.findDocuments(currentUser.getName());
@@ -33,7 +33,7 @@ public class DocumentsController {
     }
 
     @RequestMapping(method = RequestMethod.GET)
-    @ModelAttribute("hotels")
+    @ModelAttribute("documents")
     public List<Document> search(SearchCriteria criteria) {
         return documentService.findDocuments(criteria);
     }

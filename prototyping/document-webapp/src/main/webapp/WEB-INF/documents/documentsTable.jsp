@@ -3,15 +3,15 @@
 
 <div id="bookings" "class="section">
 <security:authorize ifAllGranted="ROLE_USER">
-	<h2>Current Hotel Bookings</h2>
+	<h2>Current Documents</h2>
 
-	<c:if test="${empty bookings}">
+	<c:if test="${empty documents}">
 	<tr>
-		<td colspan="7">No bookings found</td>
+		<td colspan="7">No documents found</td>
 	</tr>
 	</c:if>
 
-	<c:if test="${!empty bookings}">
+	<c:if test="${!empty documents}">
 	<table class="summary">
 		<thead>
 			<tr>
@@ -25,7 +25,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach var="booking" items="${bookings}">
+			<c:forEach var="document" items="${documents}">
 			<tr>
 				<td>${booking.hotel.name}</td>
 				<td>${booking.hotel.address}</td>

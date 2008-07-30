@@ -6,7 +6,7 @@ import java.io.IOException;
 import org.donnchadh.gaelbot.services.FileSystemService;
 
 public class DocumentRepository {
-    private File root;
+    private final File root;
     private final FileSystemService fileSystemService;
     
     public DocumentRepository(String path, FileSystemService fileSystemService) throws IOException {

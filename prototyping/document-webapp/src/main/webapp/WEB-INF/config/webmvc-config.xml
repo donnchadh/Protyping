@@ -15,10 +15,10 @@
 		<property name="order" value="0"/>
 	</bean>
 
-	<!-- Controls access to the hotel booking flow -->
+	<!-- Controls access to the document upload flow -->
 	<bean id="documentFlowHandler" class="org.donnchadh.gaelbot.webapp.DocumentsFlowHandler" />
 
-	<!-- Enables convention-based request URL mapping to @Controllers e.g. /hotels/* maps to HotelsController -->
+	<!-- Enables convention-based request URL mapping to @Controllers e.g. /documents/* maps to DocumentsController -->
 	<bean class="org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping">
 		<property name="order" value="1"/>
 	</bean>	
