@@ -31,7 +31,7 @@
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach var="hotel" items="${hotels}">
+			<c:forEach var="document" items="${documents}">
 				<tr>
 					<td>${document.title}</td>
 					<td>${document.description}</td>
@@ -60,7 +60,7 @@
 				}));
 			</script>
 		</c:if>
-		<c:if test="${not empty hotels && fn:length(hotels) == searchCriteria.pageSize}">
+		<c:if test="${not empty documents && fn:length(documentss) == searchCriteria.pageSize}">
 			<a id="moreResultsLink" href="search?searchString=${searchCriteria.searchString}&pageSize=${searchCriteria.pageSize}&page=${searchCriteria.page + 1}">More Results</a>
 			<script type="text/javascript">
 				Spring.addDecoration(new Spring.AjaxEventDecoration({

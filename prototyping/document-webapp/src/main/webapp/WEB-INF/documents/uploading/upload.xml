@@ -8,11 +8,11 @@
 	<persistence-context/>
 	
   <!-- 
-	<input name="hotelId" required="true"/>
+	<input name="documentId" required="true"/>
    -->
 	
 	<on-start>
-		<evaluate expression="documentService.createDocument(hotelId, currentUser.name)" result="flowScope.document" />
+		<evaluate expression="documentService.createDocument(documentId, currentUser.name)" result="flowScope.document" />
 	</on-start>
 	
 	<view-state id="enterDocumentDetails" model="booking">

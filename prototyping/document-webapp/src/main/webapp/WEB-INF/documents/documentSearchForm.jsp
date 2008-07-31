@@ -5,7 +5,7 @@
     <span class="errors">
     	<form:errors path="*"/>
     </span>
-	<h2>Search Hotels</h2>
+	<h2>Search Documents</h2>
 	<fieldset>
 		<div class="field">
 			<div class="label">
@@ -17,7 +17,7 @@
 					Spring.addDecoration(new Spring.ElementDecoration({
 						elementId : "searchString",
 						widgetType : "dijit.form.ValidationTextBox",
-						widgetAttrs : { promptMessage : "Search hotels by name, address, city, or zip." }}));
+						widgetAttrs : { promptMessage : "Search documents by title,description etc." }}));
 				</script>
 			</div>
 		</div>
@@ -34,7 +34,7 @@
 			</div>
 		</div>
 		<div class="buttonGroup">
-			<input type="submit" value="Find Hotels" />
+			<input type="submit" value="Find Documents" />
 		</div>		
     </fieldset>
 </div>

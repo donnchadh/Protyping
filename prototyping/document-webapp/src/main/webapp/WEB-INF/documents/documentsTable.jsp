@@ -15,24 +15,28 @@
 	<table class="summary">
 		<thead>
 			<tr>
-				<th>Name</th>
-				<th>Address</th>
+				<th>Title</th>
+				<th>Description</th>
+<%--
 				<th>City, State</th>
 				<th>Check in Date</th>
 				<th>Check out Date</th>
-				<th>Confirmation Number</th>
+--%>
+				<th>Document ID</th>
 				<th>Action</th>
 			</tr>
 		</thead>
 		<tbody>
 			<c:forEach var="document" items="${documents}">
 			<tr>
-				<td>${booking.hotel.name}</td>
-				<td>${booking.hotel.address}</td>
+				<td>${document.title}</td>
+				<td>${document.description}</td>
+<%--
 				<td>${booking.hotel.city}, ${booking.hotel.state}</td>
 				<td>${booking.checkinDate}</td>
 				<td>${booking.checkoutDate}</td>
-				<td>${booking.id}</td>
+--%>
+				<td>${document.id}</td>
 				<td>
 					<a id="cancelLink_${booking.id}" href="deleteBooking?id=${booking.id}">Cancel</a>
 					<script type="text/javascript">

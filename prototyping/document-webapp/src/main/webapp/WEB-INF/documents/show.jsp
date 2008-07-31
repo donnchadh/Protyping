@@ -3,20 +3,21 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 
 <div class="section">
-	<h2>View Hotel</h2>
+	<h2>View Document</h2>
 </div>
 
 <div class="section">
-	<form:form id="hotel" modelAttribute="hotel" action="booking" method="get">
+	<form:form id="document" modelAttribute="document" action="document" method="get">
 	<fieldset>
 		<div class="field">
-			<div class="label">Name:</div>
-			<div class="output">${hotel.name}</div>
+			<div class="label">Title:</div>
+			<div class="output">${document.title}</div>
 		</div>
 		<div class="field">
-			<div class="label">Address:</div>
-			<div class="output">${hotel.address}</div>
+			<div class="label">Description:</div>
+			<div class="output">${document.description}</div>
 		</div>
+<%--
 		<div class="field">
 			<div class="label">City:</div>
 			<div class="output">${hotel.city}</div>
@@ -39,9 +40,10 @@
 	        	<spring:bind path="price">${status.value}</spring:bind>
 	        </div>
 	    </div>
-	    <input type="hidden" name="hotelId" value="${hotel.id}" />
+--%>
+	    <input type="hidden" name="documentId" value="${document.id}" />
 		<div class="buttonGroup">
-			<input type="submit" value="Book Hotel"/>&#160;
+			<input type="submit" value="Analyse Document"/>&#160;
 		</div>
 	</fieldset>
 	</form:form>

@@ -3,11 +3,14 @@ package org.donnchadh.gaelbot.domainmodel;
 import java.net.URI;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 import javax.persistence.Transient;
 
 @Entity
@@ -27,6 +30,11 @@ public class Document {
     private Charset characterSet = Charset.forName("UTF-8");
     private String title;
     private String description;
+    @Temporal(TemporalType.DATE)
+    private Date creationDate;
+    
+    public Document() {
+    }
     
     public Document(RepositoryDocument repositoryDocument, URL originalUrl, URI uri, Language language, Charset characterSet) {
         this.repositoryDocument = repositoryDocument;
@@ -62,5 +70,13 @@ public class Document {
     
     public String getDescription() {
         return description;
+    }
+    
+    public Date getCreationDate() {
+        return creationDate;
+    }
+    
+    public Long getId() {
+        return id;
     }
 }
