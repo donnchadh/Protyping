@@ -15,7 +15,7 @@ import org.htmlparser.Parser;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
-class DocumentHandlingUrlProcessor implements UrlProcessor {
+public class DocumentHandlingUrlProcessor implements UrlProcessor {
     private final DocumentProcessor documentProcessor;
 
     public DocumentHandlingUrlProcessor(DocumentProcessor... documentProcessors) {

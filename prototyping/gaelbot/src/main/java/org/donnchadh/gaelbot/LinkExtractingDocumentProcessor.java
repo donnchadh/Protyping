@@ -8,8 +8,14 @@ import org.htmlparser.NodeFilter;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 
-class LinkExtractingDocumentProcessor implements DocumentProcessor {
-    private NodeList links = new NodeList();
+public class LinkExtractingDocumentProcessor implements DocumentProcessor {
+    public static class LinkNodeFilter implements NodeFilter {
+		public boolean accept(Node node) {
+		    return node instanceof LinkTag;
+		}
+	}
+
+	private NodeList links = new NodeList();
     
     public void processDocument(NodeList top) {
         links = extractLinks(top);
@@ -21,12 +27,7 @@ class LinkExtractingDocumentProcessor implements DocumentProcessor {
     
     private NodeList extractLinks(NodeList top) {
         NodeList links;
-        NodeFilter linkFilter = new NodeFilter() {
-
-            public boolean accept(Node node) {
-                return node instanceof LinkTag;
-            }
-        };
+        NodeFilter linkFilter = new LinkNodeFilter();
         links = top.extractAllNodesThatMatch(linkFilter);
         return links;
     }
