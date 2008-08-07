@@ -6,6 +6,7 @@ package org.donnchadh.gaelbot;
 import java.util.Map;
 import java.util.Set;
 
+import org.donnchadh.gaelbot.oireachtas.OireachtoCleaner;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.tags.MetaTag;

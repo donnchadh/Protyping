@@ -1,4 +1,4 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.oireachtas;
 
 import java.io.IOException;
 import java.net.URL;

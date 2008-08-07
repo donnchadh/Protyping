@@ -14,7 +14,7 @@ import java.util.Map;
 import org.osjava.norbert.NoRobotClient;
 import org.osjava.norbert.NoRobotException;
 
-final class RobotsChecker {
+public final class RobotsChecker {
         private final Map<String, String> robots = new HashMap<String, String>();
         
         public RobotsChecker() {

@@ -5,6 +5,7 @@ package org.donnchadh.gaelbot;
 
 import static org.junit.Assert.*;
 
+import org.donnchadh.gaelbot.oireachtas.OireachtoCleaner;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;

@@ -1,4 +1,4 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.oireachtas;
 
 public class OireachtoBotEn extends OireachtoBot {
     public OireachtoBotEn() {

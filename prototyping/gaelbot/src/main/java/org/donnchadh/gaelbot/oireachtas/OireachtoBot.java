@@ -1,10 +1,9 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.oireachtas;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.Charset;
@@ -24,8 +23,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.donnchadh.gaelbot.DCLinkVisitorTask;
+import org.donnchadh.gaelbot.ReverseIntegerComparator;
+import org.donnchadh.gaelbot.RobotsChecker;
 import org.donnchadh.gaelbot.crawler.AbstractBot;
-
 
 import com.csvreader.CsvReader;
 
