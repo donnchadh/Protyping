@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.security.SecureRandom;
 
-public class FileSystemService {
+import org.donnchadh.gaelbot.domainmodel.services.IFileSystemService;
+
+public class FileSystemService implements IFileSystemService {
     
     private final SecureRandom randomNumberGenerator;
 

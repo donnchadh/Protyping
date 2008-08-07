@@ -10,6 +10,11 @@
   <description></description>
   <dependencies>
         <dependency>
+			  <groupId>org.donnchadh.gaelbot</groupId>
+			  <artifactId>domainmodel</artifactId>
+			  <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
             <groupId>org.htmlparser</groupId>
             <artifactId>htmlparser</artifactId>
             <version>1.6</version>
@@ -77,8 +82,8 @@
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
         <configuration>
-          <source>1.5</source>
-          <target>1.5</target>
+          <source>1.6</source>
+          <target>1.6</target>
         </configuration>
       </plugin>
       </plugins>

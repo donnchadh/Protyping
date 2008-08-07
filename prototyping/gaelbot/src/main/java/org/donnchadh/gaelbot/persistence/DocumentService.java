@@ -2,8 +2,10 @@ package org.donnchadh.gaelbot.persistence;
 
 import java.io.File;
 import java.net.URL;
+import java.util.List;
 
 import org.donnchadh.gaelbot.domainmodel.Document;
+import org.donnchadh.gaelbot.webapp.SearchCriteria;
 
 /**
  * A service interface for retrieving hotels and bookings from a backing repository. Also supports the ability to cancel
@@ -49,5 +51,11 @@ public interface DocumentService {
     public Document importDocument(URL originalUrl);
 
     public Document importDocumentFile(File file, URL originalUrl);
+
+    public List<Document> findDocuments(String name);
+
+    public List<Document> findDocuments(SearchCriteria criteria);
+
+    public Document findDocumentById(Long id);
 
 }
