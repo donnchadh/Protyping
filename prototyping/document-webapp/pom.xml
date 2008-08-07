@@ -10,6 +10,11 @@
   <url>http://maven.apache.org</url>
   <dependencies>
     <dependency>
+        <groupId>org.donnchadh.gaelbot</groupId>
+        <artifactId>gaelbot</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
         <groupId>org.hibernate</groupId>
         <artifactId>hibernate</artifactId>
         <version>3.2.6.ga</version>
@@ -43,7 +48,7 @@
     <dependency>
         <groupId>org.springframework.webflow</groupId>
         <artifactId>org.springframework.webflow</artifactId>
-        <version>2.0.2.RELEASE</version>
+        <version>2.0.3.RELEASE</version>
     </dependency>
     <dependency>
         <groupId>ognl</groupId>
