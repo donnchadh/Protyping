@@ -3,7 +3,6 @@ package org.donnchadh.gaelbot.urlprocessors;
 import java.io.IOException;
 import java.net.URL;
 
-import org.donnchadh.gaelbot.UrlProcessor;
 
 public class CompositeUrlProcessor implements UrlProcessor {
 

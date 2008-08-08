@@ -1,19 +1,21 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.dublincore;
 
 import java.util.Map;
 import java.util.Set;
 
+import org.donnchadh.gaelbot.documentprocessors.DocumentProcessor;
 import org.donnchadh.gaelbot.oireachtas.OireachtoCleaner;
+import org.donnchadh.gaelbot.wordcounting.WordCounter;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.tags.MetaTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.SimpleNodeIterator;
 
-class WordCountingDublinCoreDocumentProcessor implements DocumentProcessor {
+public class WordCountingDublinCoreDocumentProcessor implements DocumentProcessor {
 
     private final String targetLanguage;
     private final Set<String> ignoreWords;

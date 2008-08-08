@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.robots;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

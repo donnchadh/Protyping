@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.urlprocessors.impl;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -10,7 +10,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 
-class FileCachingUrlProcessor implements UrlProcessor {
+import org.donnchadh.gaelbot.urlprocessors.UrlProcessor;
+
+public class FileCachingUrlProcessor implements UrlProcessor {
     private final String targetLanguage;
 
     public FileCachingUrlProcessor(String targetLanguage) {

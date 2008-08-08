@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.urlprocessors.impl;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
@@ -9,6 +9,8 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import org.donnchadh.gaelbot.documentprocessors.CompositeDocumentProcessor;
+import org.donnchadh.gaelbot.documentprocessors.DocumentProcessor;
+import org.donnchadh.gaelbot.urlprocessors.UrlProcessor;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.Parser;

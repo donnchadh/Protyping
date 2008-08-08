@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.util;
 
 import java.util.Comparator;
 

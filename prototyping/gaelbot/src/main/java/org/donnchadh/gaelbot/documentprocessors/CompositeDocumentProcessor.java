@@ -1,6 +1,5 @@
 package org.donnchadh.gaelbot.documentprocessors;
 
-import org.donnchadh.gaelbot.DocumentProcessor;
 import org.htmlparser.util.NodeList;
 
 public class CompositeDocumentProcessor implements DocumentProcessor {

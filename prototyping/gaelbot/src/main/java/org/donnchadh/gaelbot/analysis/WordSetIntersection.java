@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.donnchadh.gaelbot.ReverseIntegerComparator;
+import org.donnchadh.gaelbot.util.ReverseIntegerComparator;
 
 import com.csvreader.CsvReader;
 

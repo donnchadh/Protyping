@@ -1,11 +1,15 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.tasks;
 
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+
+import org.donnchadh.gaelbot.dublincore.WordCountingDublinCoreDocumentProcessor;
+import org.donnchadh.gaelbot.robots.RobotsChecker;
+import org.donnchadh.gaelbot.urlprocessors.impl.FileCachingUrlProcessor;
 
 
 public final class DCLinkVisitorTask extends LinkVisitorTask {

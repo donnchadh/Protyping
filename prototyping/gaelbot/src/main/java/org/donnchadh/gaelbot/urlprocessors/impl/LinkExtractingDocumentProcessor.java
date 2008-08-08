@@ -1,8 +1,9 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.urlprocessors.impl;
 
+import org.donnchadh.gaelbot.documentprocessors.DocumentProcessor;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 import org.htmlparser.tags.LinkTag;

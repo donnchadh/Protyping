@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.tasks;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -9,14 +9,19 @@ import java.net.URL;
 import java.util.Queue;
 import java.util.Set;
 
+import org.donnchadh.gaelbot.documentprocessors.DocumentProcessor;
+import org.donnchadh.gaelbot.robots.RobotsChecker;
 import org.donnchadh.gaelbot.urlprocessors.CompositeUrlProcessor;
+import org.donnchadh.gaelbot.urlprocessors.UrlProcessor;
+import org.donnchadh.gaelbot.urlprocessors.impl.DocumentHandlingUrlProcessor;
+import org.donnchadh.gaelbot.urlprocessors.impl.LinkExtractingDocumentProcessor;
 import org.htmlparser.Tag;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 import org.htmlparser.visitors.NodeVisitor;
 
-class LinkVisitorTask extends AbstractLinkVisitorTask  {
+public class LinkVisitorTask extends AbstractLinkVisitorTask  {
     
     private final String newLink;
 
@@ -30,7 +35,7 @@ class LinkVisitorTask extends AbstractLinkVisitorTask  {
     
     
     
-    LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker) {
+    public LinkVisitorTask(String newLink, Set<String> processed, Queue<String> urlQueue, RobotsChecker robotsChecker) {
         this(newLink, processed,  urlQueue,  robotsChecker, new LinkExtractingDocumentProcessor());
     }
 

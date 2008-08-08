@@ -4,10 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.nio.charset.Charset;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -23,17 +20,16 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import org.donnchadh.gaelbot.DCLinkVisitorTask;
-import org.donnchadh.gaelbot.ReverseIntegerComparator;
-import org.donnchadh.gaelbot.RobotsChecker;
 import org.donnchadh.gaelbot.crawler.AbstractBot;
+import org.donnchadh.gaelbot.robots.RobotsChecker;
+import org.donnchadh.gaelbot.util.ReverseIntegerComparator;
 
 import com.csvreader.CsvReader;
 
 public class OireachtoBot extends AbstractBot implements Runnable {
     private String targetLanguage = "ga";
     private String rootUrl = "http://achtanna.oireachtas.ie/ga.toc.decade.html";
-    private int maxWords = 18000;
+	private int maxWords = 18000;
 
     public OireachtoBot() {
     }
@@ -52,10 +48,27 @@ public class OireachtoBot extends AbstractBot implements Runnable {
     }
 
     public void run() {
-        final Set<String> ignoreWords = new HashSet<String>();
+    	final Set<String> ignoreWords = readIgnoreWords("commonWords.csv");
+        
+        final ExecutorService executor = Executors.newFixedThreadPool(50);
+        final Queue<String> urlQueue = new ConcurrentLinkedQueue<String>();
+        final Queue<String> hostQueue = new ConcurrentLinkedQueue<String>();
+        final Set<String> processed = Collections.synchronizedSet(new HashSet<String>());
+        final RobotsChecker robotsChecker = new RobotsChecker();
+        final Map<String, Integer> wordCounts = new ConcurrentHashMap<String, Integer>();
+        
+        urlQueue.add(rootUrl);
+        new OireachtasUrlProcessingTask(processed, urlQueue, ignoreWords,
+				wordCounts, executor, hostQueue, robotsChecker, targetLanguage, maxWords).run();
+        printTopNWords(wordCounts, 100);
+        System.exit(0);
+    }
+
+	private Set<String> readIgnoreWords(String filename) {
+		final Set<String> ignoreWords = new HashSet<String>();
         try {
             Set<String> keepWords = new HashSet<String>();
-            CsvReader csvReader = new CsvReader(new FileInputStream("commonWords.csv"), Charset.forName("UTF-8"));
+			CsvReader csvReader = new CsvReader(new FileInputStream(filename), Charset.forName("UTF-8"));
             csvReader.readHeaders();
             String[] header = csvReader.getHeaders();
             while (csvReader.readRecord()) {
@@ -70,38 +83,8 @@ public class OireachtoBot extends AbstractBot implements Runnable {
         } catch (IOException e) {
             e.printStackTrace(System.err);
         }
-        
-        final ExecutorService executor = Executors.newFixedThreadPool(50);
-        final Queue<String> urlQueue = new ConcurrentLinkedQueue<String>();
-        final Queue<String> hostQueue = new ConcurrentLinkedQueue<String>();
-        final Set<String> processed = Collections.synchronizedSet(new HashSet<String>());
-        final RobotsChecker robotsChecker = new RobotsChecker();
-        final Map<String, Integer> wordCounts = new ConcurrentHashMap<String, Integer>();
-        
-        SecureRandom secureRandom = new SecureRandom(new SecureRandom(new byte[]{0,0,0,0}).generateSeed(32));
-        urlQueue.add(rootUrl);
-        while (!urlQueue.isEmpty()) {
-            final String newLink = urlQueue.remove();
-            try {
-                hostQueue.add(new URL(newLink).getHost());
-            } catch (MalformedURLException e1) {
-                e1.printStackTrace();
-            }
-            executor.execute(new DCLinkVisitorTask(newLink, processed, urlQueue, robotsChecker, wordCounts, targetLanguage, ignoreWords));
-            while (urlQueue.isEmpty()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-            if (wordCounts.size() >= maxWords) {
-                break;
-            }
-        }
-        printTopNWords(wordCounts, 100);
-        System.exit(0);
-    }
+		return ignoreWords;
+	}
 
     private void printTopNWords(Map<String, Integer> wordCounts, int n) {
         SortedMap<Integer, List<String>> wordsByCount = new TreeMap<Integer, List<String>>(new ReverseIntegerComparator());

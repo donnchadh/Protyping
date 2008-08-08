@@ -1,4 +1,4 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.wordcounting;
 
 import java.text.BreakIterator;
 import java.util.ArrayList;

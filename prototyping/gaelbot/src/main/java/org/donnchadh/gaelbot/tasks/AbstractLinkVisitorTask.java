@@ -1,9 +1,10 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.tasks;
 
 import java.io.IOException;
 import java.net.URL;
 
 import org.donnchadh.gaelbot.urlprocessors.CompositeUrlProcessor;
+import org.donnchadh.gaelbot.urlprocessors.UrlProcessor;
 
 public abstract class AbstractLinkVisitorTask implements Runnable {
     private final UrlProcessor urlProcessor;

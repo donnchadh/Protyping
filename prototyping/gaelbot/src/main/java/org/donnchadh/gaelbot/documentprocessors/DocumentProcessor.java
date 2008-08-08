@@ -1,4 +1,4 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.documentprocessors;
 
 import org.htmlparser.util.NodeList;
 

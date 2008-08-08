@@ -1,9 +1,6 @@
 package org.donnchadh.gaelbot;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Queue;
@@ -13,14 +10,19 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.donnchadh.gaelbot.crawler.AbstractBot;
-import org.osjava.norbert.NoRobotException;
+import org.donnchadh.gaelbot.robots.RobotsChecker;
+import org.donnchadh.gaelbot.tasks.RobotsCheckingTask;
+import org.donnchadh.gaelbot.tasks.UrlQueueProcessingTask;
 
 public class GaelBot extends AbstractBot implements Runnable {
     private static final String[] focail = { "agus", "tá", "bhí", "beidh", "sé", "sí", "níos", "mó", "ná", "chéile",
             "slán", "cúpla", "focal", "raibh", "maith", "agat", "ní", "níl", "mé", "tú", "bíonn", "bhíonn", "baineann",
             "má", "gaeilge" };
 
-    /**
+	private final ExecutorService executor = Executors.newFixedThreadPool(50);
+	private final Queue<String> hostQueue = new ConcurrentLinkedQueue<String>();
+
+	/**
      * @param args
      */
     public static void main(String[] args) {
@@ -28,12 +30,31 @@ public class GaelBot extends AbstractBot implements Runnable {
     }
 
     public void run() {
-        final ExecutorService executor = Executors.newFixedThreadPool(50);
-        final Queue<String> urlQueue = new ConcurrentLinkedQueue<String>();
-        final Queue<String> hostQueue = new ConcurrentLinkedQueue<String>();
-        final Set<String> processed = Collections.synchronizedSet(new HashSet<String>());
-        final RobotsChecker robotsChecker = new RobotsChecker();
-        for (String focal : focail) {
+    	final RobotsChecker robotsChecker = startRobotsChecker();
+    	final Queue<String> urlQueue = buildGoogleUrls();
+        processUrls(robotsChecker, urlQueue);
+    }
+
+	private void processUrls(final RobotsChecker robotsChecker,
+			final Queue<String> urlQueue) {
+		final Set<String> processed = Collections.synchronizedSet(new HashSet<String>());
+        new UrlQueueProcessingTask(urlQueue, executor, processed, robotsChecker, hostQueue).run();
+	}
+
+	protected RobotsChecker startRobotsChecker() {
+		final RobotsChecker robotsChecker = new RobotsChecker();
+        executor.execute(new RobotsCheckingTask(robotsChecker, hostQueue));
+		return robotsChecker;
+	}
+
+	private Queue<String> buildGoogleUrls() {
+		final Queue<String> urlQueue = new ConcurrentLinkedQueue<String>();
+        addGoogleUrlsToQueue(urlQueue);
+		return urlQueue;
+	}
+
+	private void addGoogleUrlsToQueue(final Queue<String> urlQueue) {
+		for (String focal : focail) {
             for (String focal2 : focail) {
                 for (String focal3 : focail) {
                     String newLink;
@@ -46,46 +67,6 @@ public class GaelBot extends AbstractBot implements Runnable {
                 }
             }
         }
-        executor.execute(new Runnable() {
-            public void run() {
-                while (true) {
-                    while (hostQueue.isEmpty()) {
-                        try {
-                            Thread.sleep(1000);
-                        } catch (InterruptedException e) {
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-                    if (!hostQueue.isEmpty()) {
-                        try {
-                            robotsChecker.checkRobots(hostQueue.remove(), "http", 80);
-                        } catch (MalformedURLException e) {
-                            e.printStackTrace();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (NoRobotException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-        while (!urlQueue.isEmpty()) {
-            final String newLink = urlQueue.remove();
-            try {
-                hostQueue.add(new URL(newLink).getHost());
-            } catch (MalformedURLException e1) {
-                e1.printStackTrace();
-            }
-            executor.execute(new LinkVisitorTask(newLink, processed, urlQueue, robotsChecker));
-            while (urlQueue.isEmpty()) {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                }
-            }
-        }
-    }
+	}
 
 }
