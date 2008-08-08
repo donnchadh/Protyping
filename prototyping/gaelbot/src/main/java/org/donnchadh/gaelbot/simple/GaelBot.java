@@ -1,4 +1,4 @@
-package org.donnchadh.gaelbot;
+package org.donnchadh.gaelbot.simple;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
