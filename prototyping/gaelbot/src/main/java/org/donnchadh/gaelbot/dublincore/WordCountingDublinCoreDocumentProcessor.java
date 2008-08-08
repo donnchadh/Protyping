@@ -6,8 +6,8 @@ package org.donnchadh.gaelbot.dublincore;
 import java.util.Map;
 import java.util.Set;
 
+import org.donnchadh.gaelbot.cleaners.SimpleCleaner;
 import org.donnchadh.gaelbot.documentprocessors.DocumentProcessor;
-import org.donnchadh.gaelbot.oireachtas.OireachtoCleaner;
 import org.donnchadh.gaelbot.wordcounting.WordCounter;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
@@ -47,7 +47,7 @@ public class WordCountingDublinCoreDocumentProcessor implements DocumentProcesso
             }
         }
         if (targetLanguage.equalsIgnoreCase(language)) {
-            new WordCounter(targetLanguage, ignoreWords).countWords(new OireachtoCleaner().clean(top), wordCounts);
+            new WordCounter(targetLanguage, ignoreWords).countWords(new SimpleCleaner().clean(top), wordCounts);
         }
     }
     

@@ -5,7 +5,7 @@ package org.donnchadh.gaelbot;
 
 import static org.junit.Assert.*;
 
-import org.donnchadh.gaelbot.oireachtas.OireachtoCleaner;
+import org.donnchadh.gaelbot.cleaners.SimpleCleaner;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -48,7 +48,7 @@ public class OireachtoCleanerTest {
 
     @Test
     public void testClean() throws Exception {
-        String result = new OireachtoCleaner().clean(getClass().getClassLoader().getResource("sample.html"));
+        String result = new SimpleCleaner().clean(getClass().getClassLoader().getResource("sample.html"));
         assertEquals("\r\n" + 
         		"Uimhir 32/2003: ACHT NA dTEANGACHA OIFIGIÚLA 2003 \r\n" + 
         		"&nbsp; \r\n" + 
@@ -252,7 +252,7 @@ public class OireachtoCleanerTest {
     
     @Test
     public void testClean2() throws Exception {
-        String result = new OireachtoCleaner().clean(getClass().getClassLoader().getResource("sample2.html"));
+        String result = new SimpleCleaner().clean(getClass().getClassLoader().getResource("sample2.html"));
         String expected = "\r\n" + 
         		"Uimhir 32/2003: CUID 1 Réamhráiteach agus Ginearálta \r\n" + 
         		"&nbsp; \r\n" + 

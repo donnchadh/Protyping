@@ -10,7 +10,13 @@ import org.htmlparser.util.NodeList;
 import org.htmlparser.util.ParserException;
 
 public abstract class AbstractCleaner {
-    public abstract String clean(NodeList top);
+    private static final class NullFilter implements NodeFilter {
+		public boolean accept(Node arg0) {
+		    return true;
+		}
+	}
+
+	public abstract String clean(NodeList top);
     
     public String clean(String input) {
         Parser parser = Parser.createParser(input, "UTF-8");
@@ -32,10 +38,7 @@ public abstract class AbstractCleaner {
     public String clean(Parser parser) {
         NodeList top;
         try {
-            top = parser.parse(new NodeFilter(){
-                public boolean accept(Node arg0) {
-                    return true;
-                }});
+            top = parser.parse(new NullFilter());
         } catch (ParserException e) {
             throw new RuntimeException(e);
         }

@@ -5,6 +5,7 @@ import static org.junit.Assert.*;
 
 import java.util.Map;
 
+import org.donnchadh.gaelbot.wordcounting.WordCounter;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
