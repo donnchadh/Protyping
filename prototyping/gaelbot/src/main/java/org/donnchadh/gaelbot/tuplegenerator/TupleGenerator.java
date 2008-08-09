@@ -1,12 +1,10 @@
 package org.donnchadh.gaelbot.tuplegenerator;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,7 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.csvreader.CsvReader;
+import org.donnchadh.gaelbot.util.CsvLineHandler;
+import org.donnchadh.gaelbot.util.CsvReaderHelper;
 
 public class TupleGenerator {
 	public static void main(String[] args) throws IOException {
@@ -46,16 +45,10 @@ public class TupleGenerator {
 	}
 	
 	private String[] readWords(File wordFile) {
-		List<String> words = new ArrayList<String>();
-		try {
-			CsvReader csvReader = new CsvReader(new FileInputStream(wordFile), Charset.forName("UTF-8"));
-			while (csvReader.readRecord()) {
-	            String[] values = csvReader.getValues();
-	            words.add(values[1]);
-	        }
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		final List<String> words = new ArrayList<String>();
+		new CsvReaderHelper().readFile(wordFile, new CsvLineHandler(){ public void handle(String[] values) { 
+			words.add(values[1]);}}
+		);
         return words.toArray(new String[words.size()]);
 	}
 

@@ -39,7 +39,7 @@ final class OireachtasUrlProcessingTask extends UrlQueueProcessingTask {
         }
     }
 
-	protected DCLinkVisitorTask buildLinkVisitorTask(final String newLink) {
+	public DCLinkVisitorTask buildLinkVisitorTask(final String newLink) {
 		return new DCLinkVisitorTask(newLink, getProcessed(), getUrlQueue(), getRobotsChecker(), wordCounts, targetLanguage, ignoreWords);
 	}
 }

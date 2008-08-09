@@ -2,8 +2,6 @@ package org.donnchadh.gaelbot.urlcollector;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -15,6 +13,8 @@ import java.util.List;
 import org.donnchadh.gaelbot.crawler.AbstractBot;
 import org.donnchadh.gaelbot.urlprocessors.impl.DocumentHandlingUrlProcessor;
 import org.donnchadh.gaelbot.urlprocessors.impl.LinkExtractingDocumentProcessor;
+import org.donnchadh.gaelbot.util.CsvLineHandler;
+import org.donnchadh.gaelbot.util.CsvReaderHelper;
 import org.htmlparser.Tag;
 import org.htmlparser.tags.LinkTag;
 import org.htmlparser.util.NodeList;
@@ -96,16 +96,10 @@ public class UrlCollector {
 	}
 
 	private String[][] readTuples(File wordFile) {
-		List<String[]> words = new ArrayList<String[]>();
-		try {
-			CsvReader csvReader = new CsvReader(new FileInputStream(wordFile), Charset.forName("UTF-8"));
-			while (csvReader.readRecord()) {
-	            String[] values = csvReader.getValues();
-	            words.add(values);
-	        }
-		} catch (IOException e) {
-			throw new RuntimeException(e);
-		}
+		final List<String[]> words = new ArrayList<String[]>();
+		new CsvReaderHelper().readFile(wordFile, new CsvLineHandler(){ public void handle(String[] line) { 
+			words.add(line);}}
+		);
         return words.toArray(new String[words.size()][]);
 	}
 
