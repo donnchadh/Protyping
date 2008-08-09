@@ -13,10 +13,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.donnchadh.gaelbot.DocumentHandlingUrlProcessor;
-import org.donnchadh.gaelbot.WordCounter;
 import org.donnchadh.gaelbot.fscrawler.AbstractFileHandler;
 import org.donnchadh.gaelbot.fscrawler.Crawler;
+import org.donnchadh.gaelbot.urlprocessors.impl.DocumentHandlingUrlProcessor;
+import org.donnchadh.gaelbot.wordcounting.WordCounter;
 import org.htmlparser.Node;
 import org.htmlparser.nodes.TextNode;
 import org.htmlparser.tags.LinkTag;

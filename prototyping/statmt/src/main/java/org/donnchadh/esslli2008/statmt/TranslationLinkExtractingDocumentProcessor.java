@@ -1,6 +1,6 @@
 package org.donnchadh.esslli2008.statmt;
 
-import org.donnchadh.gaelbot.LinkExtractingDocumentProcessor;
+import org.donnchadh.gaelbot.urlprocessors.impl.LinkExtractingDocumentProcessor;
 import org.htmlparser.Node;
 import org.htmlparser.NodeFilter;
 
