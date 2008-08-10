@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import org.donnchadh.gaelbot.crawler.AbstractBot;
 import org.donnchadh.gaelbot.tasks.SimpleUrlQueueProcessingTask;
+import org.donnchadh.gaelbot.tasks.factory.impl.PageDownloadingLinkVisitorTaskFactory;
 import org.donnchadh.gaelbot.util.CsvLineHandler;
 import org.donnchadh.gaelbot.util.CsvReaderHelper;
 
@@ -35,7 +36,7 @@ public class UrlDownloadingBot extends AbstractBot implements Runnable {
 	}
 
 	private void processUrls(final Queue<String> urlQueue) {
-        new SimpleUrlQueueProcessingTask(urlQueue, executor, new org.donnchadh.gaelbot.tasks.factory.impl.PageDownloadingLinkVisitorTaskFactory()).run();
+        new SimpleUrlQueueProcessingTask(urlQueue, executor, new PageDownloadingLinkVisitorTaskFactory()).run();
 	}
 
 }

@@ -9,7 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.donnchadh.gaelbot.crawler.AbstractBot;
+import org.donnchadh.gaelbot.urlprocessors.CompositeUrlProcessor;
+import org.donnchadh.gaelbot.urlprocessors.UrlProcessor;
 import org.donnchadh.gaelbot.urlprocessors.impl.DocumentHandlingUrlProcessor;
+import org.donnchadh.gaelbot.urlprocessors.impl.FileCachingUrlProcessor;
 import org.donnchadh.gaelbot.urlprocessors.impl.LinkExtractingDocumentProcessor;
 import org.donnchadh.gaelbot.util.CsvLineHandler;
 import org.donnchadh.gaelbot.util.CsvReaderHelper;
@@ -44,7 +47,7 @@ public class UrlCollector {
 			for (String googleUrl : googleUrls) {
 	            URL url = new URL(googleUrl);
 	            LinkExtractingDocumentProcessor documentProcessor = new LinkExtractingDocumentProcessor();
-	            DocumentHandlingUrlProcessor urlProcessor = new DocumentHandlingUrlProcessor(documentProcessor);
+	            UrlProcessor urlProcessor = new CompositeUrlProcessor(new FileCachingUrlProcessor("ga"), new DocumentHandlingUrlProcessor(documentProcessor));
 				urlProcessor.processUrl(url);
 				final List<String> newDocumentUrls = new ArrayList<String>();
 	            NodeList links = documentProcessor.getLinks();

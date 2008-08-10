@@ -1,4 +1,4 @@
-/**
+	/**
  * 
  */
 package org.donnchadh.gaelbot.urlprocessors.impl;
@@ -20,7 +20,8 @@ public class FileCachingUrlProcessor implements UrlProcessor {
     }
 
     public void processUrl(URL url) throws IOException {
-        File file = new File(new File(new File(targetLanguage), url.getHost()), url.getPath());
+    	File parent = new File(targetLanguage);
+        File file = buildFileFromUrl(url, parent);
         if (!file.exists()) {
             file.getParentFile().mkdirs();
             file.createNewFile();
@@ -41,4 +42,22 @@ public class FileCachingUrlProcessor implements UrlProcessor {
             s.close();
         }
     }
+
+	protected File buildFileFromUrl(URL url, File parent) {
+		String path = url.getPath();
+        if (url.getQuery() != null) {
+	        if (!path.endsWith("/")) {
+	        	path += "/";
+	        }
+	        path += url.getQuery() + ".html";
+        } else {
+	        if (path.endsWith("/")) {
+	        	path += "index.html";
+	        } else if (path.lastIndexOf('.') < (path.length() - 5)) {
+	        	path += ".html";
+	        }
+        }
+		File file = new File(new File(parent, url.getHost()), path);
+		return file;
+	}
 }
