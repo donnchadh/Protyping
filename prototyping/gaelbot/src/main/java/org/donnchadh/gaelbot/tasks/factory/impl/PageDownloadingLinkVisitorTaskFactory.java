@@ -10,5 +10,6 @@ public final class PageDownloadingLinkVisitorTaskFactory implements
 		LinkVisitorTaskFactory {
 	@Override
 	public Runnable buildLinkVisitorTask(String newLink) {
-		return new PageDownloadingLinkVisitorTask(newLink);}
+		return new PageDownloadingLinkVisitorTask(newLink);
+	}
 }

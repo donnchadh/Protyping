@@ -13,7 +13,7 @@ import org.donnchadh.gaelbot.util.CsvLineHandler;
 import org.donnchadh.gaelbot.util.CsvReaderHelper;
 
 public class UrlDownloadingBot extends AbstractBot implements Runnable {
-	private final ExecutorService executor = Executors.newFixedThreadPool(50);
+	private final ExecutorService executor = Executors.newFixedThreadPool(25);
 
 	/**
      * @param args

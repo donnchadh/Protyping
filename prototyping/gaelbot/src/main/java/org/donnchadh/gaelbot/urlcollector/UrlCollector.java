@@ -47,7 +47,8 @@ public class UrlCollector {
 			for (String googleUrl : googleUrls) {
 	            URL url = new URL(googleUrl);
 	            LinkExtractingDocumentProcessor documentProcessor = new LinkExtractingDocumentProcessor();
-	            UrlProcessor urlProcessor = new CompositeUrlProcessor(new FileCachingUrlProcessor("ga"), new DocumentHandlingUrlProcessor(documentProcessor));
+//	            UrlProcessor urlProcessor = new CompositeUrlProcessor(new FileCachingUrlProcessor("ga"), new DocumentHandlingUrlProcessor(documentProcessor));
+	            UrlProcessor urlProcessor = new DocumentHandlingUrlProcessor(documentProcessor);
 				urlProcessor.processUrl(url);
 				final List<String> newDocumentUrls = new ArrayList<String>();
 	            NodeList links = documentProcessor.getLinks();
@@ -86,7 +87,21 @@ public class UrlCollector {
 		List<String> googleUrls = new ArrayList<String>();
 		for (String[] tuple : tuples) {
 			try {
-				googleUrls.add(AbstractBot.buildGoogleUrl(tuple));
+				String[] search = new String[tuple.length + 4	];
+				search[0] = "allintext:";
+				for (int i = 0; i < tuple.length; i++) {
+					search[i+1] = tuple[i];
+				}
+				search[tuple.length+1] = "-and";
+				search[tuple.length+2] = "-irish";
+//				search[tuple.length+3] = "-if";
+//				search[tuple.length+4] = "-but";
+//				search[tuple.length+5] = "-irish";
+//				search[tuple.length+6] = "-beurla";
+//				search[tuple.length+7] = "-gu";
+//				search[tuple.length+8] = "filetype:html"; 
+				search[tuple.length+3] = "filetype:html"; 
+				googleUrls.add(AbstractBot.buildGoogleUrl(search));
 			} catch (UnsupportedEncodingException e) {
 				throw new RuntimeException(e);
 			}
