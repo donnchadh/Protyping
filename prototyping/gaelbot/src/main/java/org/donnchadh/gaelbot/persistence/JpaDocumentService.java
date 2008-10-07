@@ -114,6 +114,7 @@ public class JpaDocumentService implements DocumentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Document findDocumentById(Long id) {
         return em.find(Document.class, id);
     }
