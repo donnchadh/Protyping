@@ -16,10 +16,29 @@ public class FileSystemService implements IFileSystemService {
     
     public long addContent(File root, byte[] content) {
         long id = generateNewId(root);
-        File file = generateFile(root, id);
+        File file = getFile(root, id);
+        // TODO - write to file.
+        return id;
+    }
+    
+    public byte[] getContent(File root, long id) {
+        File file = getFile(root, id);
+        // TODO read file
+        return new byte[] {};
+    }
+
+    private long generateNewId(File root) {
+        long candidate;
+        String path;
+        File file;
+        do {
+            candidate = randomNumberGenerator.nextLong();
+            path = generateRelativePath(root, candidate);
+            file = new File(root, path);
+        } while (file.exists());
         File folder = file.getParentFile();
         folder.mkdirs();
-        if (!folder.exists()) {
+		if (!folder.exists()) {
             throw new RuntimeException("Could not create folder: " + folder.getAbsolutePath());
         }
         try {
@@ -27,45 +46,53 @@ public class FileSystemService implements IFileSystemService {
         } catch (IOException e) {
             throw new RuntimeException("Could not create file: " + file.getAbsolutePath(), e);
         }
-        // TODO - write to file.
-        return id;
-    }
-    
-    private long generateNewId(File root) {
-        long candidate;
-        do {
-            candidate = randomNumberGenerator.nextLong();
-        } while (generateFile(root, candidate).exists());
         return candidate;
     }
 
-    public byte[] getContent(File root, long id) {
-        File file = generateFile(root, id);
-        // TODO read file
-        return new byte[] {};
+    private String generateRelativePath(File root, long id) {
+        String path = null;
+        for (int i = 1; i < 3; i++) {
+            path = generateRelativePath(id, i);
+            File file = new File(root, path);
+            if (file.getParentFile().list().length < 750) {
+                return path;
+            }
+        }
+        return path;
     }
 
-    private File generateFile(File root, long id) {
-        File file = new File(root, generateRelativePath(id));
-        return file;
+    private File getFile(File root, long id) {
+        for (int i = 1; i < 3; i++) {
+            String path = generateRelativePath(id, i);
+            File file = new File(root, path);
+            if (file.exists()) {
+                return file;
+            }
+        }
+        return null;
     }
 
-    private String generateRelativePath(long id) {
-        int[] somePrimes = {151,157,163,167,173,179,181,191,193};
+    private String generateRelativePath(long id, int limit) {
+        if (limit > 3) {
+            throw new IllegalArgumentException("Limit too large: " + limit);
+        }
+        int[] somePrimes = {1531,1523,1511};
         long quotient = id;
         if (quotient < 0) {
             quotient = -quotient;
         }
-        int[] remainders = new int[9];
-        for (int i = 0; i < remainders.length; i++) {
+        int[] remainders = new int[somePrimes.length];
+        for (int i = 0; i < limit; i++) {
             remainders[i] = (int)(quotient % somePrimes[i]);
             quotient /= somePrimes[i];
         }
         StringBuilder buffer = new StringBuilder();
-        for (int i : remainders) {
-            buffer.append(i);
+        for (int i = 0; i < limit; i++) {
+            buffer.append(remainders[i]);
             buffer.append('/');
         }
+        buffer.append(quotient);
         return buffer.toString();
     }
+
 }
