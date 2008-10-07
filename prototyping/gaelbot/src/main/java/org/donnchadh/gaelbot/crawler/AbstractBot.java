@@ -9,7 +9,7 @@ public abstract class AbstractBot implements Runnable {
     public static final String UTF_8 = "UTF-8";
 
     public static String buildGoogleUrl(String... focail) throws UnsupportedEncodingException {
-        String newLink = "http://www.google.ie/search?q=";
+        String newLink = "http://www.google.ie/search?hl=ga&q=";
         for (int i = 0; i < focail.length; i++) {
             if (i != 0) {
                 newLink += "+";

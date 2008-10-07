@@ -43,7 +43,7 @@ public class FileCachingUrlProcessor implements UrlProcessor {
         }
     }
 
-	protected File buildFileFromUrl(URL url, File parent) {
+	public static File buildFileFromUrl(URL url, File parent) {
 		String path = url.getPath();
         if (url.getQuery() != null) {
 	        if (!path.endsWith("/")) {
