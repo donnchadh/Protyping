@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Queue;
 import java.util.Set;
@@ -16,6 +17,8 @@ import org.apache.droids.api.Link;
 import org.apache.droids.api.TaskMaster;
 import org.apache.droids.api.TaskQueue;
 import org.apache.droids.exception.InvalidTaskException;
+import org.apache.droids.handle.Sysout;
+import org.apache.droids.helper.factories.HandlerFactory;
 import org.apache.droids.impl.MultiThreadedTaskMaster;
 import org.apache.droids.impl.SimpleTaskQueue;
 import org.apache.droids.robot.crawler.CrawlingDroid;
@@ -49,6 +52,11 @@ public class GaelDroid extends CrawlingDroid implements Runnable {
         locations.add( args[0] );
 
         GaelDroid simple = new GaelDroid( queue, taskMaster );
+        HandlerFactory handlerFactory = new HandlerFactory();
+        Sysout defaultHandler = new Sysout();
+        handlerFactory.setMap(new HashMap<String, Object>());
+        handlerFactory.getMap().put("default", defaultHandler);
+        simple.setHandlerFactory(handlerFactory);
         simple.run();
     }
 
