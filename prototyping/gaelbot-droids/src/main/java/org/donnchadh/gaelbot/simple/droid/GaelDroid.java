@@ -1,6 +1,8 @@
 package org.donnchadh.gaelbot.simple.droid;
 
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Queue;
@@ -8,10 +10,14 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.droids.api.Link;
 import org.apache.droids.api.TaskMaster;
 import org.apache.droids.api.TaskQueue;
+import org.apache.droids.exception.InvalidTaskException;
+import org.apache.droids.impl.MultiThreadedTaskMaster;
+import org.apache.droids.impl.SimpleTaskQueue;
 import org.apache.droids.robot.crawler.CrawlingDroid;
 import org.donnchadh.gaelbot.crawler.AbstractBot;
 import org.donnchadh.gaelbot.robots.RobotsChecker;
@@ -34,13 +40,34 @@ public class GaelDroid extends CrawlingDroid implements Runnable {
      * @param args
      */
     public static void main(String[] args) {
-        new GaelDroid(null,null).run();
+        MultiThreadedTaskMaster<Link> taskMaster = new MultiThreadedTaskMaster<Link>();
+        taskMaster.setMaxThreads( 3 );
+        
+        TaskQueue<Link> queue = new SimpleTaskQueue<Link>();
+        
+        Collection<String> locations = new ArrayList<String>();
+        locations.add( args[0] );
+
+        GaelDroid simple = new GaelDroid( queue, taskMaster );
+        simple.run();
     }
 
     public void run() {
-    	final RobotsChecker robotsChecker = startRobotsChecker();
+//    	final RobotsChecker robotsChecker = startRobotsChecker();
     	final Queue<String> urlQueue = buildGoogleUrls();
-        processUrls(robotsChecker, urlQueue);
+//        processUrls(robotsChecker, urlQueue);
+        setInitialLocations( urlQueue );
+        try {
+            init();
+        } catch (InvalidTaskException e) {
+            throw new RuntimeException(e);
+        }
+        start();  
+        try {
+            getTaskMaster().awaitTermination(0, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 	private void processUrls(final RobotsChecker robotsChecker,
