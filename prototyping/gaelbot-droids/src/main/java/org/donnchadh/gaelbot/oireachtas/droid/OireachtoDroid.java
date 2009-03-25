@@ -6,26 +6,31 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.droids.api.Link;
 import org.apache.droids.api.TaskMaster;
 import org.apache.droids.api.TaskQueue;
+import org.apache.droids.exception.InvalidTaskException;
+import org.apache.droids.helper.factories.HandlerFactory;
+import org.apache.droids.impl.MultiThreadedTaskMaster;
+import org.apache.droids.impl.SimpleTaskQueue;
 import org.apache.droids.robot.crawler.CrawlingDroid;
-import org.donnchadh.gaelbot.crawler.AbstractBot;
-import org.donnchadh.gaelbot.robots.RobotsChecker;
+import org.donnchadh.gaelbot.dublincore.WordCountingDublinCoreDocumentProcessor;
+import org.donnchadh.gaelbot.handlers.impl.HandlerDocumentProcessorAdapter;
+import org.donnchadh.gaelbot.handlers.impl.HandlerUrlProcessorAdapter;
+import org.donnchadh.gaelbot.urlprocessors.impl.FileCachingUrlProcessor;
 import org.donnchadh.gaelbot.util.ReverseIntegerComparator;
 
 import com.csvreader.CsvReader;
@@ -34,6 +39,7 @@ public class OireachtoDroid extends CrawlingDroid implements Runnable {
     private String targetLanguage = "ga";
     private String rootUrl = "http://achtanna.oireachtas.ie/ga.toc.decade.html";
 	private int maxWords = 18000;
+    final Map<String, Integer> wordCounts = new ConcurrentHashMap<String, Integer>();
 
     public OireachtoDroid(TaskQueue<Link> queue, TaskMaster<Link> taskMaster) {
         super(queue, taskMaster);
@@ -50,26 +56,46 @@ public class OireachtoDroid extends CrawlingDroid implements Runnable {
      * @param args
      */
     public static void main(String[] args) {
-        new OireachtoDroid(null,null).run();
+        MultiThreadedTaskMaster<Link> taskMaster = new MultiThreadedTaskMaster<Link>();
+        taskMaster.setMaxThreads( 3 );
+        
+        TaskQueue<Link> queue = new SimpleTaskQueue<Link>();
+        
+        Collection<String> locations = new ArrayList<String>();
+        locations.add( args[0] );
+
+        OireachtoDroid simple = new OireachtoDroid( queue, taskMaster );
+        simple.run();
     }
 
     public void run() {
-    	final Set<String> ignoreWords = readIgnoreWords("commonWords.csv");
-        
-        final ExecutorService executor = Executors.newFixedThreadPool(50);
-        final Queue<String> urlQueue = new ConcurrentLinkedQueue<String>();
-        final Queue<String> hostQueue = new ConcurrentLinkedQueue<String>();
-        final Set<String> processed = Collections.synchronizedSet(new HashSet<String>());
-        final RobotsChecker robotsChecker = new RobotsChecker();
-        final Map<String, Integer> wordCounts = new ConcurrentHashMap<String, Integer>();
-        
-        urlQueue.add(rootUrl);
-        new OireachtasUrlProcessingTask(processed, urlQueue, ignoreWords,
-				wordCounts, executor, hostQueue, robotsChecker, targetLanguage, maxWords).run();
+        setInitialLocations( Arrays.asList(rootUrl) );
+        try {
+            init();
+        } catch (InvalidTaskException e) {
+            throw new RuntimeException(e);
+        }
+        start();  
+        try {
+            getTaskMaster().awaitTermination(0, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         printTopNWords(wordCounts, 100);
-        System.exit(0);
     }
 
+    @Override
+    public void init() throws InvalidTaskException {
+        super.init();
+        HandlerFactory handlerFactory = new HandlerFactory();
+        HandlerUrlProcessorAdapter defaultHandler = new HandlerUrlProcessorAdapter(new FileCachingUrlProcessor(targetLanguage));
+        handlerFactory.setMap(new HashMap<String, Object>());
+        handlerFactory.getMap().put("default", defaultHandler);
+        final Set<String> ignoreWords = readIgnoreWords("commonWords.csv");
+        handlerFactory.getMap().put("wordCounter", new HandlerDocumentProcessorAdapter(new WordCountingDublinCoreDocumentProcessor(wordCounts, targetLanguage, ignoreWords)));
+        setHandlerFactory(handlerFactory);
+    }
+    
 	private Set<String> readIgnoreWords(String filename) {
 		final Set<String> ignoreWords = new HashSet<String>();
         try {

@@ -48,14 +48,14 @@ public class GaelDroid extends CrawlingDroid implements Runnable {
         
         TaskQueue<Link> queue = new SimpleTaskQueue<Link>();
         
-        Collection<String> locations = new ArrayList<String>();
-        locations.add( args[0] );
+//        Collection<String> locations = new ArrayList<String>();
+//        locations.add( args[0] );
 
         GaelDroid simple = new GaelDroid( queue, taskMaster );
         HandlerFactory handlerFactory = new HandlerFactory();
-        Sysout defaultHandler = new Sysout();
+//        Sysout defaultHandler = new Sysout();
         handlerFactory.setMap(new HashMap<String, Object>());
-        handlerFactory.getMap().put("default", defaultHandler);
+//        handlerFactory.getMap().put("default", defaultHandler);
         simple.setHandlerFactory(handlerFactory);
         simple.run();
     }
